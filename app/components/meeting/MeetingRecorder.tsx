@@ -26,6 +26,8 @@ import {
 } from "@/components/ui/select";
 import { DesignPreview } from "./DesignPreview";
 
+const VALID_PREFIXES = ["6", "7", "8", "9"];
+
 export function MeetingRecorder() {
   const [step, setStep] = useState<"info" | "photos" | "notes">("info");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -46,15 +48,58 @@ export function MeetingRecorder() {
   };
 
   const formatPhoneNumber = (value: string) => {
+    // Remove all non-digits
     const cleaned = value.replace(/\D/g, "");
-    if (cleaned.length >= 10) {
-      return `+91 ${cleaned.slice(0, 5)} ${cleaned.slice(5, 10)}`;
-    } else if (cleaned.length > 5) {
-      return `+91 ${cleaned.slice(0, 5)} ${cleaned.slice(5)}`;
-    } else if (cleaned.length > 0) {
-      return `+91 ${cleaned}`;
+
+    // Remove the +91 if it exists at the start
+    const withoutCountryCode = cleaned.startsWith("91")
+      ? cleaned.slice(2)
+      : cleaned;
+
+    // Format as: +91 XXXXX XXXXX
+    if (withoutCountryCode.length >= 10) {
+      return `+91 ${withoutCountryCode.slice(0, 5)} ${withoutCountryCode.slice(
+        5,
+        10
+      )}`;
+    } else if (withoutCountryCode.length > 5) {
+      return `+91 ${withoutCountryCode.slice(0, 5)} ${withoutCountryCode.slice(
+        5
+      )}`;
+    } else if (withoutCountryCode.length > 0) {
+      return `+91 ${withoutCountryCode}`;
     }
     return "";
+  };
+
+  const validatePhoneNumber = (number: string) => {
+    const digits = number.replace(/\D/g, "");
+    const withoutCountryCode = digits.startsWith("91")
+      ? digits.slice(2)
+      : digits;
+
+    if (withoutCountryCode.length === 0) return true; // Empty is valid (optional)
+    if (withoutCountryCode.length !== 10) return false;
+    return VALID_PREFIXES.includes(withoutCountryCode[0]);
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formattedNumber = formatPhoneNumber(e.target.value);
+    const isValid = validatePhoneNumber(formattedNumber);
+
+    setFormData((prev) => ({
+      ...prev,
+      phoneNumber: formattedNumber,
+    }));
+
+    // Show error if number is invalid and not empty
+    if (formattedNumber && !isValid) {
+      toast({
+        title: "Invalid phone number",
+        description: "Please enter a valid 10-digit Indian mobile number",
+        variant: "destructive",
+      });
+    }
   };
 
   const [formData, setFormData] = useState<MeetingFormData>({
@@ -228,6 +273,7 @@ export function MeetingRecorder() {
             </div>
 
             {/* Phone Number */}
+            {/* Phone Number Input */}
             <div>
               <label className="text-sm font-medium mb-1 block">
                 Phone Number (Optional)
@@ -236,22 +282,29 @@ export function MeetingRecorder() {
                 <Phone className="absolute left-3 top-2.5 h-4 w-4 text-gray-500" />
                 <Input
                   className="pl-10"
-                  placeholder="99999 99999"
+                  placeholder="Enter mobile number"
                   value={formData.phoneNumber}
-                  onChange={(e) => {
-                    const formatted = formatPhoneNumber(e.target.value);
-                    setFormData((prev) => ({
-                      ...prev,
-                      phoneNumber: formatted,
-                    }));
-                  }}
+                  onChange={handlePhoneChange}
                   type="tel"
                   inputMode="numeric"
+                  maxLength={15} // Length of "+91 12345 12345"
+                  onKeyPress={(e) => {
+                    // Allow only numbers and common phone number characters
+                    if (!/[\d\s+]/.test(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}
                 />
               </div>
               <p className="text-xs text-gray-500 mt-1">
-                Enter 10 digit mobile number
+                Format: +91 XXXXX XXXXX
               </p>
+              {formData.phoneNumber &&
+                !validatePhoneNumber(formData.phoneNumber) && (
+                  <p className="text-xs text-red-500 mt-1">
+                    Please enter a valid Indian mobile number
+                  </p>
+                )}
             </div>
 
             <Button
