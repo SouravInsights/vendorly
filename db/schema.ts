@@ -8,6 +8,9 @@ import {
   boolean,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
+import { type InferSelectModel, type InferInsertModel } from "drizzle-orm";
+import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import { z } from "zod";
 
 // Meetings table to store vendor meetings
 export const meetings = pgTable("meetings", {
@@ -48,3 +51,21 @@ export const designsRelations = relations(designs, ({ one }) => ({
     references: [meetings.id],
   }),
 }));
+
+export type Meeting = InferSelectModel<typeof meetings>;
+export type NewMeeting = InferInsertModel<typeof meetings>;
+export type Design = InferSelectModel<typeof designs>;
+export type NewDesign = InferInsertModel<typeof designs>;
+
+// Schemas for validation
+export const insertMeetingSchema = createInsertSchema(meetings);
+export const selectMeetingSchema = createSelectSchema(meetings);
+export const insertDesignSchema = createInsertSchema(designs);
+export const selectDesignSchema = createSelectSchema(designs);
+
+// Enhanced schemas with relations
+export const meetingWithDesignsSchema = selectMeetingSchema.extend({
+  designs: z.array(selectDesignSchema),
+});
+
+export type MeetingWithDesigns = z.infer<typeof meetingWithDesignsSchema>;
