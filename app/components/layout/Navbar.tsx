@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "motion/react";
-import { Menu, X, Home, Plus, Clock, Book, Settings } from "lucide-react";
+import { Menu, X, Home, Plus, Clock, Book, Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -12,7 +12,7 @@ const navItems = [
   { name: "New Meeting", href: "/meetings/new", icon: Plus },
   { name: "Recent", href: "/meetings", icon: Clock },
   { name: "Designs", href: "/designs", icon: Book },
-  { name: "Settings", href: "/settings", icon: Settings },
+  { name: "My Journey", href: "/journey", icon: Trophy },
 ];
 
 export function Navbar() {

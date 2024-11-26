@@ -17,8 +17,16 @@ async function getDashboardStats() {
   };
 }
 
+const MOTIVATIONAL_QUOTES = [
+  "You're building something amazing! ✨",
+  "Small steps, big dreams! 🌟",
+  "Your fashion journey begins here! 🎯",
+];
+
 export default async function HomePage() {
   const stats = await getDashboardStats();
+  const randomQuote =
+    MOTIVATIONAL_QUOTES[Math.floor(Math.random() * MOTIVATIONAL_QUOTES.length)];
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-pink-50 to-white px-4 py-6">
@@ -26,9 +34,7 @@ export default async function HomePage() {
         {/* Header */}
         <div>
           <h1 className="text-2xl font-bold text-gray-800">Hi Farhana! 👋</h1>
-          <p className="text-gray-600 mt-1">
-            Ready to record your vendor meetings?
-          </p>
+          <p className="text-gray-600 mt-1">{randomQuote}</p>
         </div>
 
         {/* Quick Actions */}
