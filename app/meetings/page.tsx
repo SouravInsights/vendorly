@@ -153,7 +153,15 @@ function MeetingsList() {
 
   const fetchMeetings = async () => {
     try {
-      const response = await fetch("/api/meetings");
+      const timestamp = new Date().getTime();
+      const response = await fetch(`/api/meetings?t=${timestamp}`, {
+        cache: "no-store",
+        headers: {
+          "Cache-Control": "no-cache",
+          Pragma: "no-cache",
+        },
+      });
+
       const data = await response.json();
       if (data.success) {
         setMeetings(data.data);

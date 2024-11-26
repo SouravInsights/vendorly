@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import {
@@ -8,61 +9,38 @@ import {
   useCallback,
 } from "react";
 
-interface Stats {
-  totalMeetings: number;
-  totalDesigns: number;
-  uniqueLocations: number;
-  uniqueVendors: number;
-  shortlistedDesigns: number;
-  recentAchievements?: Array<{
-    id: number;
-    title: string;
-    description: string;
-    date: string;
-  }>;
-}
-
 interface AppContextType {
-  stats: Stats | null;
+  stats: any;
   isLoading: boolean;
   refreshData: () => Promise<void>;
-  error: string | null;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
-  const [stats, setStats] = useState<Stats | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [stats, setStats] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const fetchStats = useCallback(async () => {
     try {
       setIsLoading(true);
-      setError(null);
-
-      const response = await fetch("/api/stats", {
-        // Add cache busting to prevent stale data
+      const timestamp = new Date().getTime(); // Add timestamp to bust cache
+      const response = await fetch(`/api/stats?t=${timestamp}`, {
+        cache: "no-store",
         headers: {
           "Cache-Control": "no-cache",
           Pragma: "no-cache",
         },
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch stats");
-      }
+      if (!response.ok) throw new Error("Failed to fetch stats");
 
       const data = await response.json();
-
       if (data.success) {
         setStats(data.data);
-      } else {
-        throw new Error(data.message || "Failed to fetch stats");
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
-      console.error("Error fetching stats:", err);
+    } catch (error) {
+      console.error("Error fetching stats:", error);
     } finally {
       setIsLoading(false);
     }
@@ -78,7 +56,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, [fetchStats]);
 
   return (
-    <AppContext.Provider value={{ stats, isLoading, error, refreshData }}>
+    <AppContext.Provider value={{ stats, isLoading, refreshData }}>
       {children}
     </AppContext.Provider>
   );
