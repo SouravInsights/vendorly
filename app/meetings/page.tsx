@@ -1,37 +1,22 @@
-import { Suspense } from "react";
+"use client";
+
+import { Suspense, useEffect, useState } from "react";
 import Image from "next/image";
 import { format } from "date-fns";
-import { db } from "@/db";
-import { meetings, designs } from "@/db/schema";
-import { desc, eq } from "drizzle-orm";
+
 import { Card } from "@/components/ui/card";
 import { LoadingSpinner } from "@/components/ui/loading";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { DeleteConfirmDialog } from "@/components/ui/delete-confirm";
 // import { Indian } from 'lucide-react';
 
-async function getRecentMeetings() {
-  // First get all meetings
-  const recentMeetings = await db
-    .select()
-    .from(meetings)
-    .orderBy(desc(meetings.createdAt));
+import type { Meeting, Design } from "@/db/schema";
 
-  // Then for each meeting, get its designs
-  const meetingsWithDesigns = await Promise.all(
-    recentMeetings.map(async (meeting) => {
-      const designsList = await db
-        .select()
-        .from(designs)
-        .where(eq(designs.meetingId, meeting.id));
-
-      return {
-        ...meeting,
-        designs: designsList,
-      };
-    })
-  );
-
-  return meetingsWithDesigns;
+// Define interfaces for our data structures
+interface MeetingWithDesigns extends Meeting {
+  designs: Design[];
 }
 
 function EmptyState() {
@@ -52,9 +37,39 @@ function EmptyState() {
 
 function MeetingCard({
   meeting,
+  onDelete,
 }: {
-  meeting: Awaited<ReturnType<typeof getRecentMeetings>>[0];
+  meeting: MeetingWithDesigns;
+  onDelete: () => void;
 }) {
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const { toast } = useToast();
+
+  const handleDelete = async () => {
+    try {
+      const response = await fetch(`/api/meetings/${meeting.id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) throw new Error("Failed to delete");
+
+      toast({
+        title: "Meeting deleted!",
+        description: "The meeting and its designs have been removed.",
+      });
+
+      onDelete();
+    } catch {
+      toast({
+        title: "Error",
+        description: "Failed to delete meeting. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setShowDeleteConfirm(false);
+    }
+  };
+
   return (
     <Card className="overflow-hidden">
       <div className="p-6">
@@ -111,11 +126,68 @@ function MeetingCard({
           </div>
         </div>
       )}
+      <div className="p-4 border-t">
+        <Button
+          variant="ghost"
+          className="text-red-500 hover:text-red-600 hover:bg-red-50"
+          onClick={() => setShowDeleteConfirm(true)}
+        >
+          Delete Meeting
+        </Button>
+      </div>
+
+      <DeleteConfirmDialog
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={handleDelete}
+        title="Delete Meeting"
+        description="This will permanently delete this meeting and all associated designs. This action cannot be undone."
+      />
     </Card>
   );
 }
 
-export default async function MeetingsPage() {
+function MeetingsList() {
+  const [meetings, setMeetings] = useState<MeetingWithDesigns[]>([]);
+  const { toast } = useToast();
+
+  const fetchMeetings = async () => {
+    try {
+      const response = await fetch("/api/meetings");
+      const data = await response.json();
+      if (data.success) {
+        setMeetings(data.data);
+      }
+    } catch {
+      toast({
+        title: "Error",
+        description: "Failed to load meetings. Please refresh the page.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  useEffect(() => {
+    fetchMeetings();
+  }, []);
+
+  if (meetings.length === 0) {
+    return <EmptyState />;
+  }
+  return (
+    <div className="space-y-4">
+      {meetings.map((meeting) => (
+        <MeetingCard
+          key={meeting.id}
+          meeting={meeting}
+          onDelete={fetchMeetings}
+        />
+      ))}
+    </div>
+  );
+}
+
+export default function MeetingsPage() {
   return (
     <div className="max-w-4xl mx-auto p-4 md:p-6 space-y-6">
       <div>
@@ -126,22 +198,6 @@ export default async function MeetingsPage() {
       <Suspense fallback={<LoadingSpinner />}>
         <MeetingsList />
       </Suspense>
-    </div>
-  );
-}
-
-async function MeetingsList() {
-  const meetings = await getRecentMeetings();
-
-  if (meetings.length === 0) {
-    return <EmptyState />;
-  }
-
-  return (
-    <div className="space-y-4">
-      {meetings.map((meeting) => (
-        <MeetingCard key={meeting.id} meeting={meeting} />
-      ))}
     </div>
   );
 }
