@@ -8,11 +8,36 @@ import { Menu, X, Home, Plus, Clock, Book, Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { name: "Home", href: "/", icon: Home },
-  { name: "New Meeting", href: "/meetings/new", icon: Plus },
-  { name: "Recent", href: "/meetings", icon: Clock },
-  { name: "Designs", href: "/designs", icon: Book },
-  { name: "My Journey", href: "/journey", icon: Trophy },
+  {
+    name: "Home",
+    mobileName: "Home",
+    href: "/",
+    icon: Home,
+  },
+  {
+    name: "New Meeting",
+    mobileName: "New", // Shorter for mobile
+    href: "/meetings/new",
+    icon: Plus,
+  },
+  {
+    name: "Recent",
+    mobileName: "Recent",
+    href: "/meetings",
+    icon: Clock,
+  },
+  {
+    name: "Designs",
+    mobileName: "Designs",
+    href: "/designs",
+    icon: Book,
+  },
+  {
+    name: "Journey",
+    mobileName: "Journey",
+    href: "/journey",
+    icon: Trophy,
+  },
 ];
 
 export function Navbar() {
@@ -155,7 +180,9 @@ export function Navbar() {
                     whileTap={{ scale: 0.9 }}
                   >
                     <Icon size={20} />
-                    <span className="text-xs mt-1">{item.name}</span>
+                    <span className="text-[10px] mt-1 leading-none">
+                      {item.mobileName}
+                    </span>
                     {isActive && (
                       <motion.div
                         layoutId="activeTabMobile"
