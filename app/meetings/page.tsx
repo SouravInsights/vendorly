@@ -1,4 +1,3 @@
-// src/app/meetings/page.tsx
 import { Suspense } from "react";
 import Image from "next/image";
 import { format } from "date-fns";
