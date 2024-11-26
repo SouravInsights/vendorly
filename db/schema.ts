@@ -4,8 +4,8 @@ import {
   text,
   timestamp,
   integer,
+  jsonb,
   boolean,
-  json,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -24,15 +24,17 @@ export const meetings = pgTable("meetings", {
 // Designs captured during meetings
 export const designs = pgTable("designs", {
   id: serial("id").primaryKey(),
-  meetingId: integer("meeting_id").references(() => meetings.id),
+  meetingId: integer("meeting_id")
+    .references(() => meetings.id)
+    .notNull(),
   imageUrl: text("image_url").notNull(),
   price: integer("price").notNull(), // Store price in paise (1 INR = 100 paise)
   notes: text("notes"),
   category: text("category"), // e.g., 'lehenga', 'saree', etc.
   minOrderQuantity: integer("min_order_quantity"),
-  sizes: json("sizes").$type<string[]>(), // Available sizes
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  sizes: jsonb("sizes").$type<string[]>().default(["S", "M", "L", "XL"]),
   isShortlisted: boolean("is_shortlisted").default(false),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 // Relations
