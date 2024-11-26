@@ -1,60 +1,15 @@
-import { Suspense } from "react";
+"use client";
+
+import { Suspense, useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { db } from "@/db";
-import { designs as designsTable, meetings } from "@/db/schema"; // Renamed to avoid conflict
-import { desc, eq } from "drizzle-orm";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { LoadingSpinner } from "@/components/ui/loading";
-import { Heart, ImageIcon } from "lucide-react";
-
-interface DesignWithMeeting {
-  id: number;
-  imageUrl: string;
-  price: number;
-  notes: string | null;
-  category: string | null;
-  isShortlisted: boolean | null;
-  meeting: {
-    id: number;
-    vendorName: string;
-    location: string;
-  } | null; // Handle potential null from leftJoin
-}
-
-async function getAllDesigns(): Promise<DesignWithMeeting[]> {
-  const allDesigns = await db
-    .select({
-      id: designsTable.id,
-      imageUrl: designsTable.imageUrl,
-      price: designsTable.price,
-      notes: designsTable.notes,
-      category: designsTable.category,
-      isShortlisted: designsTable.isShortlisted,
-      meeting: {
-        id: meetings.id,
-        vendorName: meetings.vendorName,
-        location: meetings.location,
-      },
-    })
-    .from(designsTable)
-    .leftJoin(meetings, eq(designsTable.meetingId, meetings.id))
-    .orderBy(desc(designsTable.createdAt));
-
-  // Map the results to handle null values
-  return allDesigns.map((design) => ({
-    ...design,
-    isShortlisted: design.isShortlisted ?? false, // Default to false if null
-    meeting: design.meeting ?? {
-      // Provide default meeting info if null
-      id: 0,
-      vendorName: "Unknown Vendor",
-      location: "Unknown Location",
-    },
-  }));
-}
+import { useToast } from "@/hooks/use-toast";
+import { DeleteConfirmDialog } from "@/components/ui/delete-confirm";
+import { Heart, ImageIcon, Trash2 } from "lucide-react";
 
 function EmptyState() {
   return (
@@ -75,52 +30,136 @@ function EmptyState() {
   );
 }
 
-function DesignGrid({ designs }: { designs: DesignWithMeeting[] }) {
+function DesignCard({
+  design,
+  onDelete,
+}: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  design: any;
+  onDelete: () => void;
+}) {
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const { toast } = useToast();
+
+  const handleDelete = async () => {
+    try {
+      const response = await fetch(`/api/designs/${design.id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) throw new Error("Failed to delete");
+
+      toast({
+        title: "Design deleted!",
+        description: "The design has been removed from your library.",
+      });
+
+      onDelete();
+    } catch {
+      toast({
+        title: "Error",
+        description: "Failed to delete design. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setShowDeleteConfirm(false);
+    }
+  };
+
+  return (
+    <Card className="group overflow-hidden">
+      <div className="relative aspect-square">
+        <Image
+          src={design.imageUrl}
+          alt={`Design from ${design.meeting.vendorName}`}
+          fill
+          className="object-cover"
+          sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+        />
+        {/* Delete and Shortlist Controls */}
+        <div className="absolute top-2 right-2 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <Button
+            variant="secondary"
+            size="icon"
+            className="w-8 h-8 bg-white/80 hover:bg-white"
+            onClick={() => setShowDeleteConfirm(true)}
+          >
+            <Trash2 className="w-4 h-4 text-red-500" />
+          </Button>
+          {design.isShortlisted && (
+            <div className="w-8 h-8 rounded-md bg-white/80 flex items-center justify-center">
+              <Heart className="w-4 h-4 text-pink-500 fill-pink-500" />
+            </div>
+          )}
+        </div>
+      </div>
+      <div className="p-3">
+        <div className="flex justify-between items-start mb-2">
+          <div>
+            <p className="font-medium text-sm">{design.meeting.vendorName}</p>
+            <p className="text-xs text-gray-500">{design.meeting.location}</p>
+          </div>
+          <Badge variant="secondary" className="text-xs">
+            ₹{(design.price / 100).toLocaleString()}
+          </Badge>
+        </div>
+        {design.category && (
+          <Badge variant="outline" className="text-xs">
+            {design.category}
+          </Badge>
+        )}
+      </div>
+
+      <DeleteConfirmDialog
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={handleDelete}
+        title="Delete Design"
+        description="Are you sure you want to delete this design? This action cannot be undone."
+      />
+    </Card>
+  );
+}
+
+function DesignGrid() {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [designs, setDesigns] = useState<any[]>([]);
+  const { toast } = useToast();
+
+  const fetchDesigns = async () => {
+    try {
+      const response = await fetch("/api/designs");
+      const data = await response.json();
+      if (data.success) {
+        setDesigns(data.data);
+      }
+    } catch {
+      toast({
+        title: "Error",
+        description: "Failed to load designs. Please refresh the page.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  useEffect(() => {
+    fetchDesigns();
+  }, []);
+
+  if (designs.length === 0) {
+    return <EmptyState />;
+  }
+
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
       {designs.map((design) => (
-        <Card key={design.id} className="overflow-hidden group">
-          <div className="relative aspect-square">
-            <Image
-              src={design.imageUrl}
-              alt={`Design ${design.id}`}
-              fill
-              className="object-cover"
-              sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            />
-            {design.isShortlisted && (
-              <div className="absolute top-2 right-2">
-                <Heart className="w-5 h-5 text-pink-500 fill-pink-500" />
-              </div>
-            )}
-          </div>
-          <div className="p-3">
-            <div className="flex justify-between items-start mb-2">
-              <div>
-                <p className="font-medium text-sm">
-                  {design.meeting?.vendorName ?? "Unknown Vendor"}
-                </p>
-                <p className="text-xs text-gray-500">
-                  {design.meeting?.location ?? "Unknown Location"}
-                </p>
-              </div>
-              <Badge variant="secondary" className="text-xs">
-                ₹{(design.price / 100).toLocaleString()}
-              </Badge>
-            </div>
-            {design.category && (
-              <Badge variant="outline" className="text-xs">
-                {design.category}
-              </Badge>
-            )}
-          </div>
-        </Card>
+        <DesignCard key={design.id} design={design} onDelete={fetchDesigns} />
       ))}
     </div>
   );
 }
 
-export default async function DesignsPage() {
+export default function DesignsPage() {
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
       <div>
@@ -131,22 +170,8 @@ export default async function DesignsPage() {
       </div>
 
       <Suspense fallback={<LoadingSpinner />}>
-        <DesignsList />
+        <DesignGrid />
       </Suspense>
-    </div>
-  );
-}
-
-async function DesignsList() {
-  const designs = await getAllDesigns();
-
-  if (designs.length === 0) {
-    return <EmptyState />;
-  }
-
-  return (
-    <div className="space-y-6">
-      <DesignGrid designs={designs} />
     </div>
   );
 }
