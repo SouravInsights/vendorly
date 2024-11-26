@@ -10,6 +10,19 @@ import { LoadingSpinner } from "@/components/ui/loading";
 import { useToast } from "@/hooks/use-toast";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm";
 import { Heart, ImageIcon, Trash2 } from "lucide-react";
+import { useAppContext } from "@/app/context/AppContext";
+
+interface Design {
+  id: number;
+  imageUrl: string;
+  price: number;
+  category: string | null;
+  isShortlisted: boolean;
+  meeting: {
+    vendorName: string;
+    location: string;
+  };
+}
 
 function EmptyState() {
   return (
@@ -34,12 +47,12 @@ function DesignCard({
   design,
   onDelete,
 }: {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  design: any;
+  design: Design;
   onDelete: () => void;
 }) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const { toast } = useToast();
+  const { refreshData } = useAppContext();
 
   const handleDelete = async () => {
     try {
@@ -54,6 +67,9 @@ function DesignCard({
         description: "The design has been removed from your library.",
       });
 
+      // Refresh global stats
+      await refreshData();
+      // Refresh local designs list
       onDelete();
     } catch {
       toast({
@@ -122,8 +138,7 @@ function DesignCard({
 }
 
 function DesignGrid() {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [designs, setDesigns] = useState<any[]>([]);
+  const [designs, setDesigns] = useState<Design[]>([]);
   const { toast } = useToast();
 
   const fetchDesigns = async () => {

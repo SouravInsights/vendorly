@@ -16,10 +16,13 @@ import type {
 } from "@/lib/types";
 import { DesignPreview } from "./DesignPreview";
 import { LocationInput } from "./LocationInput";
+import { useAppContext } from "@/app/context/AppContext";
 
 const VALID_PREFIXES = ["6", "7", "8", "9"];
 
 export function MeetingRecorder() {
+  const { refreshData } = useAppContext();
+
   const [step, setStep] = useState<"info" | "photos" | "notes">("info");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [photos, setPhotos] = useState<DesignInput[]>([]);
@@ -71,8 +74,12 @@ export function MeetingRecorder() {
       phoneNumber: formattedNumber,
     }));
 
-    // Show error if number is invalid and not empty
-    if (formattedNumber && !isValid) {
+    // Only show error if number is complete (10 digits) and invalid
+    const digits = formattedNumber.replace(/\D/g, "");
+    const withoutCountryCode = digits.startsWith("91")
+      ? digits.slice(2)
+      : digits;
+    if (withoutCountryCode.length === 10 && !isValid) {
       toast({
         title: "Invalid phone number",
         description: "Please enter a valid 10-digit Indian mobile number",
@@ -154,14 +161,16 @@ export function MeetingRecorder() {
         throw new Error(data.error || "Failed to save meeting");
       }
 
-      toast({
-        title: "Meeting saved! 🎉",
-        description: "You're doing great at building your network!",
-      });
+      if (data.success) {
+        toast({
+          title: "Meeting saved! 🎉",
+          description: "You're doing great at building your network!",
+        });
 
-      // Redirect to meetings list
-      router.push("/meetings");
-      router.refresh();
+        await refreshData(); // Refresh all stats
+        router.push("/meetings");
+        router.refresh();
+      }
     } catch (error) {
       console.error("Error:", error);
       toast({

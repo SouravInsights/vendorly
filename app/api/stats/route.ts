@@ -5,17 +5,19 @@ import { count, sql } from "drizzle-orm";
 
 export async function GET() {
   try {
-    // Get total meetings and designs
+    // Get total meetings count
     const [meetingsCount] = await db.select({ value: count() }).from(meetings);
 
+    // Get total designs count
     const [designsCount] = await db.select({ value: count() }).from(designs);
 
-    // Get unique locations and vendors
+    // Get unique locations count
     const uniqueLocations = await db
       .select({ location: meetings.location })
       .from(meetings)
       .groupBy(meetings.location);
 
+    // Get unique vendors count
     const uniqueVendors = await db
       .select({ vendorName: meetings.vendorName })
       .from(meetings)
@@ -27,24 +29,34 @@ export async function GET() {
       .from(designs)
       .where(sql`${designs.isShortlisted} = true`);
 
-    // Generate achievements
+    // Create achievement messages
     const recentAchievements = [];
 
     if (meetingsCount.value >= 1) {
       recentAchievements.push({
         id: 1,
         title: "Started Your Journey!",
-        date: "Just now",
+        description: "Recorded your first meeting",
+        date: "🎉",
       });
     }
 
     if (designsCount.value >= 10) {
       recentAchievements.push({
         id: 2,
-        title: "Design Collection Growing!",
-        date: "Keep going!",
+        title: "Growing Collection!",
+        description: "Saved 10 designs",
+        date: "🌟",
       });
     }
+
+    // Log the counts for debugging
+    console.log("Stats:", {
+      totalMeetings: meetingsCount.value,
+      totalDesigns: designsCount.value,
+      uniqueLocations: uniqueLocations.length,
+      uniqueVendors: uniqueVendors.length,
+    });
 
     return NextResponse.json({
       success: true,
@@ -53,11 +65,12 @@ export async function GET() {
         totalDesigns: designsCount.value,
         uniqueLocations: uniqueLocations.length,
         uniqueVendors: uniqueVendors.length,
-        shortlistedDesigns: shortlistedCount.value,
+        shortlistedDesigns: shortlistedCount?.value ?? 0,
         recentAchievements,
       },
     });
-  } catch {
+  } catch (error) {
+    console.error("Error fetching stats:", error);
     return NextResponse.json(
       {
         success: false,

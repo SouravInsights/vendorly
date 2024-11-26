@@ -1,32 +1,39 @@
+"use client";
+
 import Link from "next/link";
 import { Plus, Clock, Book } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { db } from "@/db";
-import { meetings, designs } from "@/db/schema";
-import { count } from "drizzle-orm";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useAppContext } from "@/app/context/AppContext";
+import { MOTIVATIONAL_QUOTES } from "@/lib/constants";
 
-async function getDashboardStats() {
-  const [meetingsCount] = await db.select({ value: count() }).from(meetings);
-
-  const [designsCount] = await db.select({ value: count() }).from(designs);
-
-  return {
-    totalMeetings: meetingsCount.value,
-    totalDesigns: designsCount.value,
-  };
+function LoadingState() {
+  return (
+    <div className="max-w-md mx-auto space-y-6">
+      <div className="space-y-2">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-4 w-64" />
+      </div>
+      <div className="space-y-4">
+        <Skeleton className="h-16" />
+        <Skeleton className="h-24" />
+        <Skeleton className="h-24" />
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <Skeleton className="h-24" />
+        <Skeleton className="h-24" />
+      </div>
+    </div>
+  );
 }
 
-const MOTIVATIONAL_QUOTES = [
-  "You're building something amazing! ✨",
-  "Small steps, big dreams! 🌟",
-  "Your fashion journey begins here! 🎯",
-];
-
-export default async function HomePage() {
-  const stats = await getDashboardStats();
+export default function HomePage() {
+  const { stats, isLoading } = useAppContext();
   const randomQuote =
     MOTIVATIONAL_QUOTES[Math.floor(Math.random() * MOTIVATIONAL_QUOTES.length)];
+
+  if (isLoading || !stats) return <LoadingState />;
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-pink-50 to-white px-4 py-6">
@@ -64,7 +71,7 @@ export default async function HomePage() {
                 <div>
                   <h2 className="font-semibold">Recent Meetings</h2>
                   <p className="text-sm text-gray-500">
-                    View your latest vendor interactions
+                    View your latest meetings
                   </p>
                 </div>
               </div>
@@ -80,7 +87,7 @@ export default async function HomePage() {
                 <div>
                   <h2 className="font-semibold">Design Library</h2>
                   <p className="text-sm text-gray-500">
-                    Browse all your saved designs
+                    Browse your design collection
                   </p>
                 </div>
               </div>
