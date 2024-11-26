@@ -1,67 +1,121 @@
-// src/components/meeting/MeetingRecorder.tsx
 "use client";
 
 import { useState } from "react";
-import { MapPin, Plus } from "lucide-react";
-import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { Plus, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-
-type PhotoData = {
-  file: File;
-  price?: number;
-  notes?: string;
-  previewUrl: string;
-};
+import type {
+  DesignInput,
+  MeetingFormData,
+  ApiResponse,
+  MeetingResponse,
+} from "@/lib/types";
+import { DesignPreview } from "./DesignPreview";
 
 export function MeetingRecorder() {
   const [step, setStep] = useState<"info" | "photos" | "notes">("info");
-  const [photos, setPhotos] = useState<PhotoData[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [photos, setPhotos] = useState<DesignInput[]>([]);
   const { toast } = useToast();
+  const router = useRouter();
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<MeetingFormData>({
     vendorName: "",
     location: "",
     phoneNumber: "",
     notes: "",
   });
 
-  const handlePhotoCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files?.length) {
-      const file = files[0];
-      const previewUrl = URL.createObjectURL(file);
-      setPhotos((prev) => [...prev, { file, previewUrl }]);
+      setPhotos((prev) => [
+        ...prev,
+        {
+          file: files[0],
+          price: undefined,
+          notes: "",
+          category: undefined,
+        },
+      ]);
     }
+  };
+
+  const updatePhotoDetails = (index: number, updates: Partial<DesignInput>) => {
+    setPhotos((prev) => {
+      const newPhotos = [...prev];
+      newPhotos[index] = { ...newPhotos[index], ...updates };
+      return newPhotos;
+    });
+  };
+
+  const removePhoto = (index: number) => {
+    setPhotos((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async () => {
     try {
-      // Here we'll handle form submission
-      // Including uploading photos and creating meeting record
+      setIsSubmitting(true);
+
+      // Validate form data
+      if (!formData.vendorName || !formData.location) {
+        toast({
+          title: "Missing information",
+          description: "Please fill in all required fields",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Create FormData for submission
+      const formDataToSubmit = new FormData();
+      formDataToSubmit.append("vendorName", formData.vendorName);
+      formDataToSubmit.append("location", formData.location);
+      formDataToSubmit.append("phoneNumber", formData.phoneNumber);
+      formDataToSubmit.append("notes", formData.notes);
+
+      // Add designs
+      photos.forEach((photo) => {
+        formDataToSubmit.append("designs", photo.file);
+        formDataToSubmit.append("prices", photo.price?.toString() || "0");
+        formDataToSubmit.append("designNotes", photo.notes || "");
+      });
+
+      const response = await fetch("/api/meetings", {
+        method: "POST",
+        body: formDataToSubmit,
+      });
+
+      const data = (await response.json()) as ApiResponse<MeetingResponse>;
+
+      if (!data.success) {
+        throw new Error(data.error || "Failed to save meeting");
+      }
+
       toast({
         title: "Meeting saved! 🎉",
         description: "You're doing great at building your network!",
       });
-    } catch (err) {
-      console.error("Error saving meeting:", err);
+
+      // Redirect to meetings list
+      router.push("/meetings");
+      router.refresh();
+    } catch (error) {
+      console.error("Error:", error);
       toast({
         title: "Oops! Something went wrong",
-        description: "Don't worry, try again!",
+        description:
+          error instanceof Error ? error.message : "Don't worry, try again!",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
-
-  // Cleanup preview URLs when component unmounts
-  const cleanup = () => {
-    photos.forEach((photo) => URL.revokeObjectURL(photo.previewUrl));
-  };
-
-  useState(() => cleanup);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-pink-50 to-white px-4 py-6">
@@ -124,7 +178,6 @@ export function MeetingRecorder() {
             </Button>
           </div>
         )}
-
         {step === "photos" && (
           <div className="space-y-4">
             <h1 className="text-2xl font-bold">Add Designs 📸</h1>
@@ -132,32 +185,13 @@ export function MeetingRecorder() {
             {/* Photo Grid */}
             <div className="grid grid-cols-2 gap-4">
               {photos.map((photo, index) => (
-                <div
+                <DesignPreview
                   key={index}
-                  className="relative aspect-square rounded-lg overflow-hidden bg-white"
-                >
-                  <div className="relative w-full h-full">
-                    <Image
-                      src={photo.previewUrl}
-                      alt={`Design ${index + 1}`}
-                      fill
-                      className="object-cover"
-                    />
-                    <div className="absolute inset-x-2 bottom-2">
-                      <Input
-                        type="number"
-                        placeholder="Price (₹)"
-                        className="bg-white/90"
-                        value={photo.price}
-                        onChange={(e) => {
-                          const newPhotos = [...photos];
-                          newPhotos[index].price = Number(e.target.value);
-                          setPhotos(newPhotos);
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
+                  photo={photo}
+                  index={index}
+                  onRemove={removePhoto}
+                  onUpdate={updatePhotoDetails}
+                />
               ))}
 
               {/* Add Photo Button */}
@@ -200,11 +234,19 @@ export function MeetingRecorder() {
               rows={4}
             />
             <div className="flex space-x-4">
-              <Button variant="outline" onClick={() => setStep("photos")}>
+              <Button
+                variant="outline"
+                onClick={() => setStep("photos")}
+                disabled={isSubmitting}
+              >
                 Back
               </Button>
-              <Button className="flex-1" onClick={handleSubmit}>
-                Save Meeting
+              <Button
+                className="flex-1"
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Saving..." : "Save Meeting"}
               </Button>
             </div>
           </div>
