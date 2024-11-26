@@ -2,18 +2,28 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, MapPin } from "lucide-react";
+import { Plus, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { DELHI_MARKETS } from "@/lib/constants";
 import type {
   DesignInput,
   MeetingFormData,
   ApiResponse,
   MeetingResponse,
 } from "@/lib/types";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { DesignPreview } from "./DesignPreview";
 
 export function MeetingRecorder() {
@@ -22,6 +32,30 @@ export function MeetingRecorder() {
   const [photos, setPhotos] = useState<DesignInput[]>([]);
   const { toast } = useToast();
   const router = useRouter();
+  const [selectedArea, setSelectedArea] = useState("");
+
+  const handleAreaChange = (value: string) => {
+    setSelectedArea(value);
+    const area = DELHI_MARKETS.find((m) => m.area === value);
+    if (area?.locations.length === 1) {
+      setFormData((prev) => ({
+        ...prev,
+        location: `${area.locations[0]}, ${value}`,
+      }));
+    }
+  };
+
+  const formatPhoneNumber = (value: string) => {
+    const cleaned = value.replace(/\D/g, "");
+    if (cleaned.length >= 10) {
+      return `+91 ${cleaned.slice(0, 5)} ${cleaned.slice(5, 10)}`;
+    } else if (cleaned.length > 5) {
+      return `+91 ${cleaned.slice(0, 5)} ${cleaned.slice(5)}`;
+    } else if (cleaned.length > 0) {
+      return `+91 ${cleaned}`;
+    }
+    return "";
+  };
 
   const [formData, setFormData] = useState<MeetingFormData>({
     vendorName: "",
@@ -136,6 +170,8 @@ export function MeetingRecorder() {
         {step === "info" && (
           <div className="space-y-4">
             <h1 className="text-2xl font-bold">New Meeting 🤝</h1>
+
+            {/* Vendor Name */}
             <div>
               <Input
                 placeholder="Vendor Name"
@@ -145,30 +181,79 @@ export function MeetingRecorder() {
                 }
               />
             </div>
-            <div className="relative">
-              <MapPin
-                className="absolute left-3 top-2.5 text-gray-400"
-                size={18}
-              />
-              <Input
-                className="pl-10"
-                placeholder="Location"
-                value={formData.location}
-                onChange={(e) =>
-                  setFormData({ ...formData, location: e.target.value })
-                }
-              />
+
+            {/* Location Selection */}
+            <div className="space-y-3">
+              <label className="text-sm font-medium mb-1 block">Location</label>
+
+              {/* Area Selection */}
+              <Select onValueChange={handleAreaChange} value={selectedArea}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select market area" />
+                </SelectTrigger>
+                <SelectContent>
+                  {DELHI_MARKETS.map((market) => (
+                    <SelectGroup key={market.area}>
+                      <SelectLabel>{market.area}</SelectLabel>
+                      <SelectItem value={market.area}>{market.area}</SelectItem>
+                    </SelectGroup>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* Specific Location Selection */}
+              {selectedArea && (
+                <Select
+                  onValueChange={(value) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      location: `${value}, ${selectedArea}`,
+                    }))
+                  }
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select specific location" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {DELHI_MARKETS.find(
+                      (m) => m.area === selectedArea
+                    )?.locations.map((loc) => (
+                      <SelectItem key={loc} value={loc}>
+                        {loc}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
+
+            {/* Phone Number */}
             <div>
-              <Input
-                type="tel"
-                placeholder="Phone Number (optional)"
-                value={formData.phoneNumber}
-                onChange={(e) =>
-                  setFormData({ ...formData, phoneNumber: e.target.value })
-                }
-              />
+              <label className="text-sm font-medium mb-1 block">
+                Phone Number (Optional)
+              </label>
+              <div className="relative">
+                <Phone className="absolute left-3 top-2.5 h-4 w-4 text-gray-500" />
+                <Input
+                  className="pl-10"
+                  placeholder="99999 99999"
+                  value={formData.phoneNumber}
+                  onChange={(e) => {
+                    const formatted = formatPhoneNumber(e.target.value);
+                    setFormData((prev) => ({
+                      ...prev,
+                      phoneNumber: formatted,
+                    }));
+                  }}
+                  type="tel"
+                  inputMode="numeric"
+                />
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                Enter 10 digit mobile number
+              </p>
             </div>
+
             <Button
               className="w-full"
               onClick={() => setStep("photos")}
