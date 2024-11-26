@@ -8,23 +8,14 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-import { DELHI_MARKETS } from "@/lib/constants";
 import type {
   DesignInput,
   MeetingFormData,
   ApiResponse,
   MeetingResponse,
 } from "@/lib/types";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { DesignPreview } from "./DesignPreview";
+import { LocationInput } from "./LocationInput";
 
 const VALID_PREFIXES = ["6", "7", "8", "9"];
 
@@ -34,18 +25,6 @@ export function MeetingRecorder() {
   const [photos, setPhotos] = useState<DesignInput[]>([]);
   const { toast } = useToast();
   const router = useRouter();
-  const [selectedArea, setSelectedArea] = useState("");
-
-  const handleAreaChange = (value: string) => {
-    setSelectedArea(value);
-    const area = DELHI_MARKETS.find((m) => m.area === value);
-    if (area?.locations.length === 1) {
-      setFormData((prev) => ({
-        ...prev,
-        location: `${area.locations[0]}, ${value}`,
-      }));
-    }
-  };
 
   const formatPhoneNumber = (value: string) => {
     // Remove all non-digits
@@ -228,51 +207,16 @@ export function MeetingRecorder() {
             </div>
 
             {/* Location Selection */}
-            <div className="space-y-3">
+            <div>
               <label className="text-sm font-medium mb-1 block">Location</label>
-
-              {/* Area Selection */}
-              <Select onValueChange={handleAreaChange} value={selectedArea}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select market area" />
-                </SelectTrigger>
-                <SelectContent>
-                  {DELHI_MARKETS.map((market) => (
-                    <SelectGroup key={market.area}>
-                      <SelectLabel>{market.area}</SelectLabel>
-                      <SelectItem value={market.area}>{market.area}</SelectItem>
-                    </SelectGroup>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              {/* Specific Location Selection */}
-              {selectedArea && (
-                <Select
-                  onValueChange={(value) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      location: `${value}, ${selectedArea}`,
-                    }))
-                  }
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select specific location" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {DELHI_MARKETS.find(
-                      (m) => m.area === selectedArea
-                    )?.locations.map((loc) => (
-                      <SelectItem key={loc} value={loc}>
-                        {loc}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
+              <LocationInput
+                value={formData.location}
+                onChange={(value) =>
+                  setFormData({ ...formData, location: value })
+                }
+              />
             </div>
 
-            {/* Phone Number */}
             {/* Phone Number Input */}
             <div>
               <label className="text-sm font-medium mb-1 block">
