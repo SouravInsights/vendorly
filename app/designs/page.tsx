@@ -9,9 +9,10 @@ import { Badge } from "@/components/ui/badge";
 import { LoadingSpinner } from "@/components/ui/loading";
 import { useToast } from "@/hooks/use-toast";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm";
-import { Heart, ImageIcon, Trash2 } from "lucide-react";
+import { ImageIcon, Trash2 } from "lucide-react";
 import { useAppContext } from "@/app/context/AppContext";
 import { DesignFilters } from "@/app/components/designs/DesignFilters";
+import { ShareDesignDialog } from "../components/designs/ShareDesignDialog";
 
 interface Design {
   id: number;
@@ -94,22 +95,6 @@ function DesignCard({
           className="object-cover"
           sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
         />
-        {/* Delete and Shortlist Controls */}
-        <div className="absolute top-2 right-2 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          <Button
-            variant="secondary"
-            size="icon"
-            className="w-8 h-8 bg-white/80 hover:bg-white"
-            onClick={() => setShowDeleteConfirm(true)}
-          >
-            <Trash2 className="w-4 h-4 text-red-500" />
-          </Button>
-          {design.isShortlisted && (
-            <div className="w-8 h-8 rounded-md bg-white/80 flex items-center justify-center">
-              <Heart className="w-4 h-4 text-pink-500 fill-pink-500" />
-            </div>
-          )}
-        </div>
       </div>
       <div className="p-3">
         <div className="flex justify-between items-start mb-2">
@@ -126,6 +111,21 @@ function DesignCard({
             {design.category}
           </Badge>
         )}
+      </div>
+
+      <div className="p-3">
+        <div className="flex flex-row gap-2">
+          <Button
+            variant="destructive"
+            className="flex w-full self-stretch"
+            onClick={() => setShowDeleteConfirm(true)}
+          >
+            <Trash2 />
+            Delete
+          </Button>
+
+          <ShareDesignDialog design={design} />
+        </div>
       </div>
 
       <DeleteConfirmDialog

@@ -43,6 +43,20 @@ export const designs = pgTable("designs", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const sharedDesigns = pgTable("shared_designs", {
+  id: serial("id").primaryKey(),
+  designId: integer("design_id")
+    .references(() => designs.id)
+    .notNull(),
+  sharedBy: text("shared_by").notNull(), // Could be used for user system later
+  shareCode: text("share_code").notNull().unique(), // Unique code for sharing
+  showPrice: boolean("show_price").default(true),
+  showVendor: boolean("show_vendor").default(false),
+  expiresAt: timestamp("expires_at"), // Optional expiry
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // Relations
 export const meetingsRelations = relations(meetings, ({ many }) => ({
   designs: many(designs),

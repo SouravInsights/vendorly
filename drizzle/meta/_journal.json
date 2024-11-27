@@ -29,6 +29,13 @@
       "when": 1732715255797,
       "tag": "0003_absurd_tyger_tiger",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1732738590399,
+      "tag": "0004_old_silvermane",
+      "breakpoints": true
     }
   ]
 }
