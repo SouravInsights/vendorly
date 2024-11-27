@@ -3,7 +3,7 @@ export const revalidate = 0;
 
 import { NextResponse } from "next/server";
 import { db } from "@/db";
-import { designs } from "@/db/schema";
+import { designs, designsToCollections, sharedDesigns } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
 export async function DELETE(
@@ -12,7 +12,30 @@ export async function DELETE(
 ) {
   try {
     const id = parseInt(params.id);
-    await db.delete(designs).where(eq(designs.id, id));
+
+    // First delete shared designs
+    await db.delete(sharedDesigns).where(eq(sharedDesigns.designId, id));
+
+    // Then delete from designs_to_collections
+    await db
+      .delete(designsToCollections)
+      .where(eq(designsToCollections.designId, id));
+
+    // Finally delete the design
+    const [deletedDesign] = await db
+      .delete(designs)
+      .where(eq(designs.id, id))
+      .returning();
+
+    if (!deletedDesign) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Design with id ${id} not found`,
+        },
+        { status: 404 }
+      );
+    }
 
     return NextResponse.json({
       success: true,
@@ -23,38 +46,8 @@ export async function DELETE(
     return NextResponse.json(
       {
         success: false,
-        message: "Failed to delete design",
-      },
-      { status: 500 }
-    );
-  }
-}
-
-// Add shortlist functionality
-export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const id = parseInt(params.id);
-    const { isShortlisted } = await request.json();
-
-    const [updatedDesign] = await db
-      .update(designs)
-      .set({ isShortlisted })
-      .where(eq(designs.id, id))
-      .returning();
-
-    return NextResponse.json({
-      success: true,
-      data: updatedDesign,
-    });
-  } catch (error) {
-    console.error("Error updating design:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        message: "Failed to update design",
+        error:
+          error instanceof Error ? error.message : "Failed to delete design",
       },
       { status: 500 }
     );
