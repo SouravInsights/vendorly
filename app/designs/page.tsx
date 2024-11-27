@@ -11,12 +11,14 @@ import { useToast } from "@/hooks/use-toast";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm";
 import { Heart, ImageIcon, Trash2 } from "lucide-react";
 import { useAppContext } from "@/app/context/AppContext";
+import { DesignFilters } from "@/app/components/designs/DesignFilters";
 
 interface Design {
   id: number;
   imageUrl: string;
   finalPrice: number;
   category: string | null;
+  createdAt: string;
   isShortlisted: boolean;
   meeting: {
     vendorName: string;
@@ -139,6 +141,7 @@ function DesignCard({
 
 function DesignGrid() {
   const [designs, setDesigns] = useState<Design[]>([]);
+  const [filteredDesigns, setFilteredDesigns] = useState<Design[]>([]);
   const { toast } = useToast();
 
   const fetchDesigns = async () => {
@@ -155,6 +158,7 @@ function DesignGrid() {
       const data = await response.json();
       if (data.success) {
         setDesigns(data.data);
+        setFilteredDesigns(data.data);
       }
     } catch {
       toast({
@@ -169,15 +173,70 @@ function DesignGrid() {
     fetchDesigns();
   }, []);
 
+  const handlePriceRangeChange = ({
+    min,
+    max,
+  }: {
+    min?: number;
+    max?: number;
+  }) => {
+    let filtered = [...designs];
+
+    if (min !== undefined) {
+      filtered = filtered.filter((design) => design.finalPrice >= min);
+    }
+    if (max !== undefined) {
+      filtered = filtered.filter((design) => design.finalPrice <= max);
+    }
+
+    setFilteredDesigns(filtered);
+  };
+
+  const handleSortChange = (sort: "price_asc" | "price_desc" | "date") => {
+    const sorted = [...filteredDesigns];
+
+    switch (sort) {
+      case "price_asc":
+        sorted.sort((a, b) => a.finalPrice - b.finalPrice);
+        break;
+      case "price_desc":
+        sorted.sort((a, b) => b.finalPrice - a.finalPrice);
+        break;
+      case "date":
+        sorted.sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        break;
+    }
+
+    setFilteredDesigns(sorted);
+  };
+
   if (designs.length === 0) {
     return <EmptyState />;
   }
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-      {designs.map((design) => (
-        <DesignCard key={design.id} design={design} onDelete={fetchDesigns} />
-      ))}
+    <div className="space-y-6">
+      <DesignFilters
+        onPriceRangeChange={handlePriceRangeChange}
+        onSortChange={handleSortChange}
+      />
+
+      {filteredDesigns.length > 0 && (
+        <div className="text-sm text-gray-500">
+          Showing {filteredDesigns.length} designs
+          {filteredDesigns.length !== designs.length &&
+            ` (filtered from ${designs.length})`}
+        </div>
+      )}
+
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {filteredDesigns.map((design) => (
+          <DesignCard key={design.id} design={design} onDelete={fetchDesigns} />
+        ))}
+      </div>
     </div>
   );
 }
