@@ -41,10 +41,13 @@ export interface ApiResponse<T = unknown> {
 }
 
 // Specific API Response Types
+
 export interface MeetingResponse {
   id: number;
   vendorName: string;
   location: string;
+  phoneNumber?: string;
+  notes?: string;
   designs: Design[];
 }
 
