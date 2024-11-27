@@ -13,6 +13,7 @@ import { ImageIcon, Trash2 } from "lucide-react";
 import { useAppContext } from "@/app/context/AppContext";
 import { DesignFilters } from "@/app/components/designs/DesignFilters";
 import { ShareDesignDialog } from "../components/designs/ShareDesignDialog";
+import { AddToCollectionDialog } from "../components/collections/AddToCollectionDialog";
 
 interface Design {
   id: number;
@@ -114,7 +115,9 @@ function DesignCard({
       </div>
 
       <div className="p-3">
-        <div className="flex flex-row gap-2">
+        <div className="flex flex-row flex-wrap gap-2">
+          <ShareDesignDialog design={design} />
+          <AddToCollectionDialog designId={design.id} />
           <Button
             variant="destructive"
             className="flex w-full self-stretch"
@@ -123,8 +126,6 @@ function DesignCard({
             <Trash2 />
             Delete
           </Button>
-
-          <ShareDesignDialog design={design} />
         </div>
       </div>
 
@@ -232,7 +233,7 @@ function DesignGrid() {
         </div>
       )}
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredDesigns.map((design) => (
           <DesignCard key={design.id} design={design} onDelete={fetchDesigns} />
         ))}

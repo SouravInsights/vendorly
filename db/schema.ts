@@ -57,6 +57,25 @@ export const sharedDesigns = pgTable("shared_designs", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const collections = pgTable("collections", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description"),
+  emoji: text("emoji"), // For visual distinction
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const designsToCollections = pgTable("designs_to_collections", {
+  id: serial("id").primaryKey(),
+  designId: integer("design_id")
+    .references(() => designs.id)
+    .notNull(),
+  collectionId: integer("collection_id")
+    .references(() => collections.id)
+    .notNull(),
+  addedAt: timestamp("added_at").defaultNow().notNull(),
+});
+
 // Relations
 export const meetingsRelations = relations(meetings, ({ many }) => ({
   designs: many(designs),
@@ -73,6 +92,8 @@ export type Meeting = InferSelectModel<typeof meetings>;
 export type NewMeeting = InferInsertModel<typeof meetings>;
 export type Design = InferSelectModel<typeof designs>;
 export type NewDesign = InferInsertModel<typeof designs>;
+export type Collection = InferSelectModel<typeof collections>;
+export type NewCollection = InferInsertModel<typeof collections>;
 
 // Schemas for validation
 export const insertMeetingSchema = createInsertSchema(meetings);

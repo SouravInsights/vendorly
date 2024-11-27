@@ -4,7 +4,16 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "motion/react";
-import { Menu, X, Home, Plus, Clock, Book, Trophy } from "lucide-react";
+import {
+  Menu,
+  X,
+  Home,
+  Plus,
+  Clock,
+  Book,
+  Trophy,
+  SquareLibrary,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -37,6 +46,11 @@ const navItems = [
     mobileName: "Journey",
     href: "/journey",
     icon: Trophy,
+  },
+  {
+    name: "Collections",
+    href: "/collections",
+    icon: SquareLibrary,
   },
 ];
 
