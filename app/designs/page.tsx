@@ -15,7 +15,7 @@ import { useAppContext } from "@/app/context/AppContext";
 interface Design {
   id: number;
   imageUrl: string;
-  price: number;
+  finalPrice: number;
   category: string | null;
   isShortlisted: boolean;
   meeting: {
@@ -116,7 +116,7 @@ function DesignCard({
             <p className="text-xs text-gray-500">{design.meeting.location}</p>
           </div>
           <Badge variant="secondary" className="text-xs">
-            ₹{(design.price / 100).toLocaleString()}
+            ₹{(design.finalPrice / 100).toLocaleString()}
           </Badge>
         </div>
         {design.category && (
