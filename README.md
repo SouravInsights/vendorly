@@ -2,45 +2,47 @@
 
 A modern web application for fashion entrepreneurs to manage their design collections, vendor relationships, and streamline their business operations.
 
-## Features
+## Current Features
 
-### Design Management
-- Upload and organize design photos
-- Track design prices (base price, final price)
-- Compare similar design prices
-- Categorize designs (Lehenga, Saree, Suit, etc.)
-- Add notes and details for each design
+### Meeting & Design Management
 
-### Vendor Management
-- Record vendor meetings with details
-- Save vendor contact information
-- Track vendor locations and markets
-- Maintain meeting notes and follow-ups
+- Record vendor meetings with essential details
+  - Vendor name and contact
+  - Location and date
+  - Meeting notes
+- Capture designs during meetings
+  - Upload design photos
+  - Record price details (base price, final price)
+  - Track similar design price ranges
+  - Add notes for each design
+  - Categorize designs (Lehenga, Saree, Suit, etc.)
 
-### Collections & Organization
-- Create custom collections (e.g., "To Show Customers", "Need to Visit Again")
-- Add designs to multiple collections
-- Organize designs with visual emoji identifiers
-- Quick access to grouped designs
+### Design Library
 
-### Price Management
-- Track initial and final prices
-- Record similar design price ranges
+- Browse all designs in a visual grid
 - Filter designs by price range
-- Sort designs by price
-- Convert all prices to paise for accuracy
+- Sort by price (low to high/high to low)
+- Quick price comparisons
+- View designs by categories
+- Delete designs when needed
 
-### Sharing Features
-- Share individual designs
-- Control what information is shared (price, vendor details)
-- Add notes to shared designs
+### Collections
+
+- Create custom collections to organize designs
+- Add emoji identifiers for visual distinction
+- Add designs to multiple collections
+- Browse collections in a clean grid view
+- Add descriptions to collections
+
+### Design Sharing
+
+- Share individual designs securely
+- Control what information is visible:
+  - Toggle price visibility
+  - Toggle vendor information
+  - Add custom notes
 - Clean, presentation-friendly shared view
-
-### Market Insights
-- View designs by market location
-- Track prices across different markets
-- Filter designs by categories
-- Organize vendor information by location
+- Generate unique sharing links
 
 ## Technical Stack
 
@@ -50,28 +52,13 @@ A modern web application for fashion entrepreneurs to manage their design collec
 - **Styling**: Tailwind CSS
 - **UI Components**: shadcn/ui
 - **Image Storage**: Vercel Blob
+- **State Management**: React Hooks + Context
 - **Deployment**: Vercel
-
-## Key Features in Development
-
-1. **Smart Organization**
-   - Status tracking for designs
-   - Custom tagging system
-   - Advanced filtering and sorting
-
-2. **Enhanced Sharing**
-   - Multiple design sharing
-   - Collection sharing
-   - Custom catalogs
-
-3. **Business Tools**
-   - Follow-up reminders
-   - Sample tracking
-   - Order management
 
 ## Target Users
 
 This application is designed for fashion entrepreneurs who:
+
 - Source designs from different markets
 - Work with multiple vendors
 - Need to organize design collections
