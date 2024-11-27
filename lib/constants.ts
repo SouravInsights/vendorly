@@ -57,3 +57,14 @@ export const MOTIVATIONAL_QUOTES = [
   "Your fashion dreams are valid! 💫",
   "One meeting at a time, you're getting closer to your goals! 🎊",
 ];
+
+export const DESIGN_CATEGORIES = [
+  "Lehenga",
+  "Saree",
+  "Suit",
+  "Kurti",
+  "Gown",
+  "Other",
+] as const;
+
+export type DesignCategory = (typeof DESIGN_CATEGORIES)[number];

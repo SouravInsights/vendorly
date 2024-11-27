@@ -6,7 +6,13 @@ import { db } from "@/db";
 import { meetings, designs } from "@/db/schema";
 import { put } from "@vercel/blob";
 import { nanoid } from "nanoid";
-import type { ApiResponse, MeetingResponse } from "@/lib/types";
+import type {
+  ApiResponse,
+  MeetingResponse,
+  MeetingWithDesigns,
+} from "@/lib/types";
+
+import type { DesignCategory } from "@/lib/constants";
 
 export async function POST(
   request: Request
@@ -17,8 +23,8 @@ export async function POST(
     // Extract meeting data
     const vendorName = formData.get("vendorName") as string;
     const location = formData.get("location") as string;
-    const phoneNumber = formData.get("phoneNumber") as string;
-    const notes = formData.get("notes") as string;
+    const phoneNumber = (formData.get("phoneNumber") as string) || undefined;
+    const notes = (formData.get("notes") as string) || undefined;
 
     // Create meeting record
     const [newMeeting] = await db
@@ -26,65 +32,92 @@ export async function POST(
       .values({
         vendorName,
         location,
-        phoneNumber,
-        notes,
+        phoneNumber: phoneNumber || null,
+        notes: notes || null,
       })
       .returning();
 
     // Handle design files and create design records
     const designFiles = formData.getAll("designs") as File[];
-    const designPrices = formData
-      .getAll("prices")
-      .map((price) => Number(price) || 0);
-    const designNotes = formData.getAll("designNotes") as string[];
 
     const designPromises = designFiles.map(async (file, index) => {
-      // Upload file to Vercel Blob
       const blob = await put(`designs/${nanoid()}-${file.name}`, file, {
         access: "public",
         addRandomSuffix: true,
       });
 
-      // Create design record
-      return db
+      // Get design details with new fields
+      const basePrice = parseInt(
+        formData.get(`basePrice_${index}`)?.toString() || "0"
+      );
+      const finalPrice = parseInt(
+        formData.get(`finalPrice_${index}`)?.toString() || "0"
+      );
+      const similarMinPrice = formData
+        .get(`similarMinPrice_${index}`)
+        ?.toString();
+      const similarMaxPrice = formData
+        .get(`similarMaxPrice_${index}`)
+        ?.toString();
+      const category = formData
+        .get(`category_${index}`)
+        ?.toString() as DesignCategory | null;
+      const designNotes = formData.get(`notes_${index}`)?.toString();
+
+      // Insert with explicit type checking
+      const [design] = await db
         .insert(designs)
         .values({
           meetingId: newMeeting.id,
           imageUrl: blob.url,
-          price: designPrices[index] * 100, // Convert to paise
-          notes: designNotes[index] || null,
+          basePrice: basePrice * 100,
+          finalPrice: finalPrice * 100,
+          similarDesignsMinPrice: similarMinPrice
+            ? parseInt(similarMinPrice) * 100
+            : null,
+          similarDesignsMaxPrice: similarMaxPrice
+            ? parseInt(similarMaxPrice) * 100
+            : null,
+          category: category || null,
+          notes: designNotes || null,
         })
         .returning();
+
+      return design;
     });
 
     const createdDesigns = await Promise.all(designPromises);
 
-    return NextResponse.json({
+    const response: ApiResponse<MeetingResponse> = {
       success: true,
       message: "Meeting recorded successfully!",
       data: {
-        ...newMeeting,
-        designs: createdDesigns.flat(),
+        id: newMeeting.id,
+        vendorName: newMeeting.vendorName,
+        location: newMeeting.location,
+        phoneNumber: newMeeting.phoneNumber || undefined,
+        notes: newMeeting.notes || undefined,
+        designs: createdDesigns,
       },
-    });
+    };
+
+    return NextResponse.json(response);
   } catch (error) {
     console.error("Error creating meeting:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error:
-          error instanceof Error ? error.message : "Failed to create meeting",
-      },
-      { status: 500 }
-    );
+    const errorResponse: ApiResponse<never> = {
+      success: false,
+      error:
+        error instanceof Error ? error.message : "Failed to create meeting",
+    };
+    return NextResponse.json(errorResponse, { status: 500 });
   }
 }
 
 export async function GET(): Promise<
-  NextResponse<ApiResponse<MeetingResponse[]>>
+  NextResponse<ApiResponse<MeetingWithDesigns[]>>
 > {
   try {
-    const meetings = await db.query.meetings.findMany({
+    const allMeetings = await db.query.meetings.findMany({
       orderBy: (meetings, { desc }) => [desc(meetings.createdAt)],
       limit: 10,
       with: {
@@ -94,7 +127,7 @@ export async function GET(): Promise<
 
     return NextResponse.json({
       success: true,
-      data: meetings,
+      data: allMeetings,
     });
   } catch (error) {
     return NextResponse.json(

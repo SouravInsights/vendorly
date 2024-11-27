@@ -1,57 +1,55 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import Image from "next/image";
 import { X } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import type { DesignInput } from "@/lib/types";
-
-interface DesignPreviewProps {
-  photo: DesignInput;
-  index: number;
-  onRemove: (index: number) => void;
-  onUpdate: (index: number, updates: Partial<DesignInput>) => void;
-}
+import { PriceInput } from "./forms/PriceInput";
+import { CategorySelect } from "./forms/CategorySelect";
 
 export function DesignPreview({
   photo,
   index,
   onRemove,
   onUpdate,
-}: DesignPreviewProps) {
-  const [objectUrl, setObjectUrl] = useState<string>("");
-
-  useEffect(() => {
-    const url = URL.createObjectURL(photo.file);
-    setObjectUrl(url);
-
-    // Cleanup
-    return () => URL.revokeObjectURL(url);
-  }, [photo.file]);
-
+}: {
+  photo: DesignInput;
+  index: number;
+  onRemove: (index: number) => void;
+  onUpdate: (index: number, updates: Partial<DesignInput>) => void;
+}) {
   return (
-    <div className="relative">
-      <div className="aspect-square rounded-lg overflow-hidden relative">
+    <div className="space-y-4">
+      <div className="relative aspect-square">
         <Image
-          src={objectUrl}
+          src={URL.createObjectURL(photo.file)}
           alt={`Design ${index + 1}`}
           fill
-          className="object-cover"
-          sizes="(max-width: 768px) 50vw, 33vw"
+          className="object-cover rounded-lg"
         />
+        <button
+          onClick={() => onRemove(index)}
+          className="absolute top-2 right-2 p-1 bg-white rounded-full shadow-md"
+        >
+          <X size={16} />
+        </button>
       </div>
-      <button
-        onClick={() => onRemove(index)}
-        className="absolute top-2 right-2 p-1 bg-white rounded-full shadow-md"
-      >
-        <X size={16} />
-      </button>
-      <Input
-        type="number"
-        placeholder="Price (₹)"
-        className="mt-2"
-        value={photo.price || ""}
-        onChange={(e) => onUpdate(index, { price: Number(e.target.value) })}
+
+      <CategorySelect
+        value={photo.category}
+        onChange={(category) => onUpdate(index, { category })}
+      />
+
+      <PriceInput
+        basePrice={photo.basePrice}
+        finalPrice={photo.finalPrice}
+        similarMinPrice={photo.similarMinPrice}
+        similarMaxPrice={photo.similarMaxPrice}
+        onBaseChange={(value) => onUpdate(index, { basePrice: value })}
+        onFinalChange={(value) => onUpdate(index, { finalPrice: value })}
+        onSimilarMinChange={(value) =>
+          onUpdate(index, { similarMinPrice: value })
+        }
+        onSimilarMaxChange={(value) =>
+          onUpdate(index, { similarMaxPrice: value })
+        }
       />
     </div>
   );

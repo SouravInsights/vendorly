@@ -3,29 +3,61 @@
 import { Suspense, useEffect, useState } from "react";
 import Image from "next/image";
 import { format } from "date-fns";
-
 import { Card } from "@/components/ui/card";
 import { LoadingSpinner } from "@/components/ui/loading";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm";
-// import { Indian } from 'lucide-react';
+import { useAppContext } from "@/app/context/AppContext";
+import { IndianRupee } from "lucide-react";
+import type { Design, Meeting } from "@/db/schema";
+import { DesignCategory } from "@/lib/constants";
 
-import type { Meeting, Design } from "@/db/schema";
+interface MeetingFromAPI
+  extends Omit<Meeting, "meetingDate" | "followUpDate" | "createdAt"> {
+  meetingDate: string;
+  followUpDate: string | null;
+  createdAt: string;
+  designs: DesignFromAPI[];
+}
 
-// Define interfaces for our data structures
-interface MeetingWithDesigns extends Meeting {
-  designs: Design[];
+interface DesignFromAPI extends Omit<Design, "createdAt" | "category"> {
+  createdAt: string;
+  category: DesignCategory | null;
+}
+
+interface PriceTagProps {
+  amount: number;
+  label?: string;
+}
+
+// Update the DesignCard props
+interface DesignCardProps {
+  design: DesignFromAPI;
+}
+
+// Update the MeetingCard props
+interface MeetingCardProps {
+  meeting: MeetingFromAPI;
+  onDelete: () => void;
+}
+
+function PriceTag({ amount, label }: PriceTagProps) {
+  return (
+    <div className="flex items-center text-sm text-gray-600">
+      <IndianRupee className="w-3.5 h-3.5 mr-1" />
+      <span>{(amount / 100).toLocaleString()}</span>
+      {label && <span className="text-gray-500 ml-1">({label})</span>}
+    </div>
+  );
 }
 
 function EmptyState() {
   return (
     <Card className="p-12 text-center">
       <div className="flex justify-center mb-4">
-        <div className="bg-pink-100 p-3 rounded-full">
-          {/* <Indian className="w-6 h-6 text-pink-500" /> */}
-        </div>
+        <div className="bg-pink-100 p-3 rounded-full" />
       </div>
       <h3 className="text-lg font-medium mb-2">No meetings yet</h3>
       <p className="text-gray-500 mb-4">
@@ -35,15 +67,27 @@ function EmptyState() {
   );
 }
 
-function MeetingCard({
-  meeting,
-  onDelete,
-}: {
-  meeting: MeetingWithDesigns;
-  onDelete: () => void;
-}) {
+function DesignCard({ design }: DesignCardProps) {
+  return (
+    <div className="relative flex-shrink-0 w-24 h-24 group">
+      <Image
+        src={design.imageUrl}
+        alt="Design"
+        fill
+        className="object-cover rounded-lg"
+        sizes="96px"
+      />
+      <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs p-1 rounded-b-lg">
+        <PriceTag amount={design.basePrice} />
+      </div>
+    </div>
+  );
+}
+
+function MeetingCard({ meeting, onDelete }: MeetingCardProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const { toast } = useToast();
+  const { refreshData } = useAppContext();
 
   const handleDelete = async () => {
     try {
@@ -58,6 +102,7 @@ function MeetingCard({
         description: "The meeting and its designs have been removed.",
       });
 
+      await refreshData();
       onDelete();
     } catch {
       toast({
@@ -103,23 +148,26 @@ function MeetingCard({
         <div className="border-t">
           <div className="p-4 overflow-x-auto">
             <div className="flex gap-4">
-              {meeting.designs.map((design, index) => (
-                <div
-                  key={design.id}
-                  className="relative flex-shrink-0 w-24 h-24 group"
-                >
-                  <Image
-                    src={design.imageUrl}
-                    alt={`Design ${index + 1}`}
-                    fill
-                    className="object-cover rounded-lg"
-                    sizes="96px"
-                  />
-                  {design.price && (
-                    <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs p-1 rounded-b-lg text-center">
-                      ₹{(design.price / 100).toLocaleString()}
-                    </div>
+              {meeting.designs.map((design) => (
+                <div key={design.id} className="space-y-1">
+                  <DesignCard design={design} />
+                  {design.category && (
+                    <Badge variant="outline" className="text-xs">
+                      {design.category}
+                    </Badge>
                   )}
+                  {design.finalPrice !== design.basePrice && (
+                    <PriceTag amount={design.finalPrice} label="final" />
+                  )}
+                  {design.similarDesignsMinPrice &&
+                    design.similarDesignsMaxPrice && (
+                      <div className="text-xs text-gray-500">
+                        Similar: ₹
+                        {(design.similarDesignsMinPrice / 100).toLocaleString()}{" "}
+                        - ₹
+                        {(design.similarDesignsMaxPrice / 100).toLocaleString()}
+                      </div>
+                    )}
                 </div>
               ))}
             </div>
@@ -148,20 +196,12 @@ function MeetingCard({
 }
 
 function MeetingsList() {
-  const [meetings, setMeetings] = useState<MeetingWithDesigns[]>([]);
+  const [meetings, setMeetings] = useState<MeetingFromAPI[]>([]);
   const { toast } = useToast();
 
   const fetchMeetings = async () => {
     try {
-      const timestamp = new Date().getTime();
-      const response = await fetch(`/api/meetings?t=${timestamp}`, {
-        cache: "no-store",
-        headers: {
-          "Cache-Control": "no-cache",
-          Pragma: "no-cache",
-        },
-      });
-
+      const response = await fetch("/api/meetings");
       const data = await response.json();
       if (data.success) {
         setMeetings(data.data);
@@ -182,6 +222,7 @@ function MeetingsList() {
   if (meetings.length === 0) {
     return <EmptyState />;
   }
+
   return (
     <div className="space-y-4">
       {meetings.map((meeting) => (
