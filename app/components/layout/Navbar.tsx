@@ -19,36 +19,59 @@ import { cn } from "@/lib/utils";
 const navItems = [
   {
     name: "Home",
-    mobileName: "Home",
     href: "/",
     icon: Home,
   },
   {
     name: "New Meeting",
-    mobileName: "New", // Shorter for mobile
     href: "/meetings/new",
     icon: Plus,
   },
   {
     name: "Recent",
-    mobileName: "Recent",
     href: "/meetings",
     icon: Clock,
   },
   {
     name: "Designs",
-    mobileName: "Designs",
     href: "/designs",
     icon: Book,
   },
   {
     name: "Journey",
-    mobileName: "Journey",
     href: "/journey",
     icon: Trophy,
   },
   {
     name: "Collections",
+    href: "/collections",
+    icon: SquareLibrary,
+  },
+];
+
+const navItemsMobile = [
+  {
+    mobileName: "Home",
+    href: "/",
+    icon: Home,
+  },
+  {
+    mobileName: "New",
+    href: "/meetings/new",
+    icon: Plus,
+  },
+  {
+    mobileName: "Recent",
+    href: "/meetings",
+    icon: Clock,
+  },
+  {
+    mobileName: "Designs",
+    href: "/designs",
+    icon: Book,
+  },
+  {
+    mobileName: "Collections",
     href: "/collections",
     icon: SquareLibrary,
   },
@@ -180,7 +203,7 @@ export function Navbar() {
           className="fixed bottom-0 left-0 right-0 h-16 bg-white border-t z-40"
         >
           <div className="grid grid-cols-5 h-full">
-            {navItems.map((item) => {
+            {navItemsMobile.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
 
