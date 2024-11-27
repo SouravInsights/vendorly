@@ -6,6 +6,7 @@ import {
   integer,
   jsonb,
   boolean,
+  numeric,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { type InferSelectModel, type InferInsertModel } from "drizzle-orm";
@@ -24,14 +25,20 @@ export const meetings = pgTable("meetings", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-// Designs captured during meetings
 export const designs = pgTable("designs", {
   id: serial("id").primaryKey(),
   meetingId: integer("meeting_id")
     .references(() => meetings.id)
     .notNull(),
   imageUrl: text("image_url").notNull(),
-  price: integer("price").notNull(), // Store price in paise (1 INR = 100 paise)
+  // Base price (initial quoted price)
+  basePrice: numeric("base_price").notNull(),
+  // Final price after negotiation (if any)
+  finalPrice: numeric("final_price").notNull(),
+  // Price range of similar designs seen (optional)
+  similarDesignsMinPrice: numeric("similar_designs_min_price"),
+  similarDesignsMaxPrice: numeric("similar_designs_max_price"),
+  // Existing fields
   notes: text("notes"),
   category: text("category"), // e.g., 'lehenga', 'saree', etc.
   minOrderQuantity: integer("min_order_quantity"),

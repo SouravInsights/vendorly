@@ -1,4 +1,5 @@
 import { type Meeting, type Design } from "@/db/schema";
+import { DesignCategory } from "./constants";
 
 // Database Types
 export interface MeetingWithDesigns extends Meeting {
@@ -8,9 +9,12 @@ export interface MeetingWithDesigns extends Meeting {
 // Form Types
 export interface DesignInput {
   file: File;
-  price?: number;
+  basePrice?: number;
+  finalPrice?: number;
+  similarMinPrice?: number;
+  similarMaxPrice?: number;
   notes?: string;
-  category?: string;
+  category?: DesignCategory;
 }
 
 export interface MeetingFormData {
