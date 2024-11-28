@@ -1,4 +1,4 @@
-# Ethnic Edge
+# Vendorly
 
 A modern web application for fashion entrepreneurs to manage their design collections, vendor relationships, and streamline their business operations.
 
