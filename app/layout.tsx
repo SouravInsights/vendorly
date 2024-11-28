@@ -10,7 +10,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Ethnic Edge - Fashion Vendor Management",
+  title: "Vendorly - Fashion Vendor Management",
   description: "Manage your fashion business vendors and designs",
 };
 
