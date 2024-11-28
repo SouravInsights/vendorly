@@ -98,7 +98,7 @@ export function Navbar() {
             transition={{ delay: 0.2 }}
           >
             <h1 className="text-2xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 text-transparent bg-clip-text">
-              Ethnic Edge
+              Vendorly
             </h1>
             <p className="text-sm text-gray-500 mt-1">
               Farhana&apos;s Fashion Hub
