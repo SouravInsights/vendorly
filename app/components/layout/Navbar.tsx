@@ -151,7 +151,7 @@ export function Navbar() {
           className="fixed top-0 left-0 right-0 h-16 bg-white shadow-sm z-40 px-4 flex items-center justify-between"
         >
           <h1 className="text-xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 text-transparent bg-clip-text">
-            Ethnic Edge
+            Vendorly
           </h1>
           <motion.button
             whileTap={{ scale: 0.95 }}
