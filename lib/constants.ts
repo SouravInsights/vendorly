@@ -53,7 +53,7 @@ export const MILESTONES = [
 export const MOTIVATIONAL_QUOTES = [
   "Every successful business started exactly where you are now! 🌱",
   "Small steps lead to big achievements! 🎯",
-  "You're building something amazing, Farhana! ✨",
+  "You're building something amazing! ✨",
   "Your fashion dreams are valid! 💫",
   "One meeting at a time, you're getting closer to your goals! 🎊",
 ];
