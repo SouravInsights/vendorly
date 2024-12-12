@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useAppContext } from "@/app/context/AppContext";
+import { useDashboardContext } from "@/app/(dashboard)/context/DashboardContext";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { MeetingFormData } from "@/lib/types";
@@ -12,7 +12,7 @@ import { NotesStep } from "./steps/NotesStep";
 import { useDesigns } from "@/hooks/useDesigns";
 
 export function MeetingRecorder() {
-  const { refreshData } = useAppContext();
+  const { refreshData } = useDashboardContext();
   const [step, setStep] = useState<"info" | "photos" | "notes">("info");
   const [formData, setFormData] = useState<MeetingFormData>({
     vendorName: "",

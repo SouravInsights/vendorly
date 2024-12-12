@@ -1,116 +1,132 @@
-"use client";
-
+import { SignInButton, SignedIn, SignedOut } from "@clerk/nextjs";
 import Link from "next/link";
-import { Plus, Clock, Book } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useAppContext } from "@/app/context/AppContext";
-import { MOTIVATIONAL_QUOTES } from "@/lib/constants";
+import { ArrowRight, CheckCircle2, Layout, Shield, Users } from "lucide-react";
 
-function LoadingState() {
+export default function LandingPage() {
+  const features = [
+    {
+      icon: <Layout className="h-6 w-6" />,
+      title: "Intuitive Design Management",
+      description:
+        "Organize and manage your design collections effortlessly with our user-friendly interface.",
+    },
+    {
+      icon: <Users className="h-6 w-6" />,
+      title: "Client Collaboration",
+      description:
+        "Share designs securely with clients and collect feedback in one centralized place.",
+    },
+    {
+      icon: <Shield className="h-6 w-6" />,
+      title: "Secure Sharing",
+      description:
+        "Control who sees your designs with secure, customizable sharing options.",
+    },
+  ];
+
   return (
-    <div className="max-w-md mx-auto space-y-6">
-      <div className="space-y-2">
-        <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-4 w-64" />
-      </div>
-      <div className="space-y-4">
-        <Skeleton className="h-16" />
-        <Skeleton className="h-24" />
-        <Skeleton className="h-24" />
-      </div>
-      <div className="grid grid-cols-2 gap-4">
-        <Skeleton className="h-24" />
-        <Skeleton className="h-24" />
-      </div>
+    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
+      {/* Navigation */}
+      <nav className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md z-50 border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <h1 className="text-2xl font-bold text-gray-900">Venodrly</h1>
+            <div className="flex items-center gap-4">
+              <SignedIn>
+                <Link
+                  href="/dashboard"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-900 text-white hover:bg-gray-800 transition-colors"
+                >
+                  Go to Dashboard
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </SignedIn>
+              <SignedOut>
+                <SignInButton mode="modal">
+                  <button className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-900 text-white hover:bg-gray-800 transition-colors">
+                    Get Started
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                </SignInButton>
+              </SignedOut>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      {/* Hero Section */}
+      <section className="pt-32 pb-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto text-center">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
+            Manage Your Design Collection
+            <br className="hidden sm:block" />
+            <span className="text-blue-600"> With Confidence</span>
+          </h1>
+          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+            The all-in-one platform for managing your design portfolio,
+            collaborating with clients, and tracking your creative journey.
+          </p>
+          <SignedOut>
+            <SignInButton mode="modal">
+              <button className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors text-lg">
+                Start Free
+                <ArrowRight className="h-5 w-5" />
+              </button>
+            </SignInButton>
+          </SignedOut>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-8">
+            {features.map((feature, index) => (
+              <div
+                key={index}
+                className="p-6 rounded-xl bg-white shadow-sm border hover:shadow-md transition-shadow"
+              >
+                <div className="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center mb-4">
+                  {feature.icon}
+                </div>
+                <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
+                <p className="text-gray-600">{feature.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Benefits Section */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-3xl font-bold text-center mb-12">
+            Why Choose Us
+          </h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[
+              "Easy design organization",
+              "Secure file sharing",
+              "Client feedback tools",
+              "Meeting management",
+              "Analytics dashboard",
+              "Customizable collections",
+            ].map((benefit, index) => (
+              <div key={index} className="flex items-center gap-3">
+                <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0" />
+                <span>{benefit}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-50 border-t py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto text-center text-gray-600">
+          <p>© {new Date().getFullYear()} DesignVault. All rights reserved.</p>
+        </div>
+      </footer>
     </div>
-  );
-}
-
-export default function HomePage() {
-  const { stats, isLoading } = useAppContext();
-  const randomQuote =
-    MOTIVATIONAL_QUOTES[Math.floor(Math.random() * MOTIVATIONAL_QUOTES.length)];
-
-  if (isLoading || !stats) return <LoadingState />;
-
-  return (
-    <main className="min-h-screen bg-gradient-to-br from-pink-50 to-white px-4 py-6">
-      <div className="max-w-md mx-auto space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800">Hi Farhana! 👋</h1>
-          <p className="text-gray-600 mt-1">{randomQuote}</p>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="grid gap-4">
-          <Link href="/meetings/new">
-            <Button className="w-full h-auto p-4 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600">
-              <div className="flex items-center space-x-3">
-                <div className="bg-white/20 p-2 rounded-full">
-                  <Plus className="h-6 w-6" />
-                </div>
-                <div className="text-left">
-                  <div className="font-semibold">New Meeting</div>
-                  <div className="text-sm opacity-90">
-                    Record vendor details & designs
-                  </div>
-                </div>
-              </div>
-            </Button>
-          </Link>
-
-          <Link href="/meetings">
-            <Card className="p-4 hover:shadow-md transition-shadow">
-              <div className="flex items-center space-x-3">
-                <div className="bg-pink-100 p-2 rounded-full">
-                  <Clock className="h-6 w-6 text-pink-500" />
-                </div>
-                <div>
-                  <h2 className="font-semibold">Recent Meetings</h2>
-                  <p className="text-sm text-gray-500">
-                    View your latest meetings
-                  </p>
-                </div>
-              </div>
-            </Card>
-          </Link>
-
-          <Link href="/designs">
-            <Card className="p-4 hover:shadow-md transition-shadow">
-              <div className="flex items-center space-x-3">
-                <div className="bg-purple-100 p-2 rounded-full">
-                  <Book className="h-6 w-6 text-purple-500" />
-                </div>
-                <div>
-                  <h2 className="font-semibold">Design Library</h2>
-                  <p className="text-sm text-gray-500">
-                    Browse your design collection
-                  </p>
-                </div>
-              </div>
-            </Card>
-          </Link>
-        </div>
-
-        {/* Quick Stats */}
-        <div className="grid grid-cols-2 gap-4">
-          <Card className="p-4">
-            <div className="text-sm text-gray-500">Total Meetings</div>
-            <div className="text-2xl font-bold text-gray-800 mt-1">
-              {stats.totalMeetings}
-            </div>
-          </Card>
-          <Card className="p-4">
-            <div className="text-sm text-gray-500">Saved Designs</div>
-            <div className="text-2xl font-bold text-gray-800 mt-1">
-              {stats.totalDesigns}
-            </div>
-          </Card>
-        </div>
-      </div>
-    </main>
   );
 }

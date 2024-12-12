@@ -10,10 +10,10 @@ import { LoadingSpinner } from "@/components/ui/loading";
 import { useToast } from "@/hooks/use-toast";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm";
 import { ImageIcon, Trash2 } from "lucide-react";
-import { useAppContext } from "@/app/context/AppContext";
-import { DesignFilters } from "@/app/components/designs/DesignFilters";
-import { ShareDesignDialog } from "../components/designs/ShareDesignDialog";
-import { AddToCollectionDialog } from "../components/collections/AddToCollectionDialog";
+import { useDashboardContext } from "@/app/(dashboard)/context/DashboardContext";
+import { DesignFilters } from "@/app/(dashboard)/components/designs/DesignFilters";
+import { ShareDesignDialog } from "../../components/designs/ShareDesignDialog";
+import { AddToCollectionDialog } from "../../components/collections/AddToCollectionDialog";
 
 interface Design {
   id: number;
@@ -56,7 +56,7 @@ function DesignCard({
 }) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const { toast } = useToast();
-  const { refreshData } = useAppContext();
+  const { refreshData } = useDashboardContext();
 
   const handleDelete = async () => {
     try {

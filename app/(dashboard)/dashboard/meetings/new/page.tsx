@@ -1,4 +1,4 @@
-import { MeetingRecorder } from "../../components/meeting/MeetingRecorder";
+import { MeetingRecorder } from "../../../components/meeting/MeetingRecorder";
 
 export const metadata = {
   title: "Record New Meeting - Ethnic Edge",

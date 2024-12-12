@@ -13,38 +13,40 @@ import {
   Book,
   Trophy,
   SquareLibrary,
+  LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useClerk } from "@clerk/nextjs";
 
 const navItems = [
   {
     name: "Home",
-    href: "/",
+    href: "/dashboard", // Updated path
     icon: Home,
   },
   {
     name: "New Meeting",
-    href: "/meetings/new",
+    href: "/dashboard/meetings/new", // Updated path
     icon: Plus,
   },
   {
     name: "Recent",
-    href: "/meetings",
+    href: "/dashboard/meetings", // Updated path
     icon: Clock,
   },
   {
     name: "Designs",
-    href: "/designs",
+    href: "/dashboard/designs", // Updated path
     icon: Book,
   },
   {
     name: "Journey",
-    href: "/journey",
+    href: "/dashboard/journey", // Updated path
     icon: Trophy,
   },
   {
     name: "Collections",
-    href: "/collections",
+    href: "/dashboard/collections", // Updated path
     icon: SquareLibrary,
   },
 ];
@@ -52,27 +54,27 @@ const navItems = [
 const navItemsMobile = [
   {
     mobileName: "Home",
-    href: "/",
+    href: "/dashboard", // Updated path
     icon: Home,
   },
   {
     mobileName: "New",
-    href: "/meetings/new",
+    href: "/dashboard/meetings/new", // Updated path
     icon: Plus,
   },
   {
     mobileName: "Recent",
-    href: "/meetings",
+    href: "/dashboard/meetings", // Updated path
     icon: Clock,
   },
   {
     mobileName: "Designs",
-    href: "/designs",
+    href: "/dashboard/designs", // Updated path
     icon: Book,
   },
   {
     mobileName: "Collections",
-    href: "/collections",
+    href: "/dashboard/collections", // Updated path
     icon: SquareLibrary,
   },
 ];
@@ -80,6 +82,11 @@ const navItemsMobile = [
 export function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+  const { signOut } = useClerk();
+
+  const handleSignOut = () => {
+    signOut();
+  };
 
   return (
     <>
@@ -89,7 +96,7 @@ export function Navbar() {
         animate={{ x: 0 }}
         className="hidden md:flex fixed left-0 top-0 h-screen w-64 bg-white shadow-lg p-6"
       >
-        <div className="w-full">
+        <div className="w-full flex flex-col">
           {/* Logo */}
           <motion.div
             className="mb-8"
@@ -106,7 +113,7 @@ export function Navbar() {
           </motion.div>
 
           {/* Navigation Links */}
-          <div className="space-y-2">
+          <div className="space-y-2 flex-grow">
             {navItems.map((item, i) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
@@ -139,6 +146,17 @@ export function Navbar() {
               );
             })}
           </div>
+
+          {/* Sign Out Button */}
+          <motion.button
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            onClick={handleSignOut}
+            className="flex items-center w-full px-4 py-3 rounded-lg text-sm text-gray-600 hover:bg-pink-50 hover:text-pink-600 transition-colors mt-auto"
+          >
+            <LogOut size={18} className="mr-3" />
+            <span>Sign Out</span>
+          </motion.button>
         </div>
       </motion.nav>
 
@@ -192,6 +210,16 @@ export function Navbar() {
                   </motion.div>
                 );
               })}
+
+              {/* Sign Out Button in Mobile Menu */}
+              <motion.button
+                whileTap={{ scale: 0.98 }}
+                onClick={handleSignOut}
+                className="flex items-center w-full px-4 py-3 rounded-lg text-gray-600 hover:bg-pink-50 hover:text-pink-600 transition-colors"
+              >
+                <LogOut size={20} className="mr-3" />
+                <span>Sign Out</span>
+              </motion.button>
             </div>
           </motion.div>
         )}

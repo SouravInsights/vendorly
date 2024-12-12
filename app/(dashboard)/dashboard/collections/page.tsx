@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { CreateCollectionDialog } from "@/app/components/collections/CreateCollectionDialog";
+import { CreateCollectionDialog } from "@/app/(dashboard)/components/collections/CreateCollectionDialog";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { Collection } from "@/db/schema";

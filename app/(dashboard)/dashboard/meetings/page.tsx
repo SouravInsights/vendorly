@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm";
-import { useAppContext } from "@/app/context/AppContext";
+import { useDashboardContext } from "@/app/(dashboard)/context/DashboardContext";
 import { IndianRupee } from "lucide-react";
 import type { Design, Meeting } from "@/db/schema";
 import { DesignCategory } from "@/lib/constants";
@@ -87,7 +87,7 @@ function DesignCard({ design }: DesignCardProps) {
 function MeetingCard({ meeting, onDelete }: MeetingCardProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const { toast } = useToast();
-  const { refreshData } = useAppContext();
+  const { refreshData } = useDashboardContext();
 
   const handleDelete = async () => {
     try {

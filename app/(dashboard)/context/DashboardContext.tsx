@@ -8,32 +8,44 @@ import {
   useState,
   useCallback,
 } from "react";
+import { useAuth } from "@clerk/nextjs";
 
-interface AppContextType {
+interface DashboardContextType {
   stats: any;
   isLoading: boolean;
   refreshData: () => Promise<void>;
 }
 
-const AppContext = createContext<AppContextType | undefined>(undefined);
+const DashboardContext = createContext<DashboardContextType | undefined>(
+  undefined
+);
 
-export function AppProvider({ children }: { children: React.ReactNode }) {
+export function DashboardProvider({ children }: { children: React.ReactNode }) {
+  const { getToken } = useAuth();
   const [stats, setStats] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const fetchStats = useCallback(async () => {
     try {
       setIsLoading(true);
-      const timestamp = new Date().getTime(); // Add timestamp to bust cache
+      const token = await getToken();
+      const timestamp = new Date().getTime();
+
       const response = await fetch(`/api/stats?t=${timestamp}`, {
         cache: "no-store",
         headers: {
+          Authorization: `Bearer ${token}`,
           "Cache-Control": "no-cache",
           Pragma: "no-cache",
         },
       });
 
-      if (!response.ok) throw new Error("Failed to fetch stats");
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error("Unauthorized access");
+        }
+        throw new Error("Failed to fetch stats");
+      }
 
       const data = await response.json();
       if (data.success) {
@@ -41,10 +53,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       }
     } catch (error) {
       console.error("Error fetching stats:", error);
+      // You might want to handle different types of errors differently
+      if ((error as Error).message === "Unauthorized access") {
+        // Handle auth error specifically
+        setStats(null);
+      }
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [getToken]);
 
   // Initial fetch
   useEffect(() => {
@@ -56,16 +73,18 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, [fetchStats]);
 
   return (
-    <AppContext.Provider value={{ stats, isLoading, refreshData }}>
+    <DashboardContext.Provider value={{ stats, isLoading, refreshData }}>
       {children}
-    </AppContext.Provider>
+    </DashboardContext.Provider>
   );
 }
 
-export function useAppContext() {
-  const context = useContext(AppContext);
+export function useDashboardContext() {
+  const context = useContext(DashboardContext);
   if (context === undefined) {
-    throw new Error("useAppContext must be used within an AppProvider");
+    throw new Error(
+      "useDashboardContext must be used within a DashboardProvider"
+    );
   }
   return context;
 }
