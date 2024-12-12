@@ -22,7 +22,7 @@ interface Design {
   meeting: {
     vendorName: string;
     location: string;
-  };
+  } | null;
 }
 
 interface ShareDesignDialogProps {

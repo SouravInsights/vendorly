@@ -14,6 +14,7 @@ import { useDashboardContext } from "@/app/(dashboard)/context/DashboardContext"
 import { DesignFilters } from "@/app/(dashboard)/components/designs/DesignFilters";
 import { ShareDesignDialog } from "../../components/designs/ShareDesignDialog";
 import { AddToCollectionDialog } from "../../components/collections/AddToCollectionDialog";
+import { CreateDesignDialog } from "../../components/designs/CreateDesignDialog";
 
 interface Design {
   id: number;
@@ -22,10 +23,11 @@ interface Design {
   category: string | null;
   createdAt: string;
   isShortlisted: boolean;
+  source: "direct" | "meeting";
   meeting: {
     vendorName: string;
     location: string;
-  };
+  } | null;
 }
 
 function EmptyState() {
@@ -38,11 +40,14 @@ function EmptyState() {
       </div>
       <h3 className="text-lg font-medium mb-2">No designs yet</h3>
       <p className="text-gray-500 mb-4">
-        Your design library is empty. Start by recording vendor meetings!
+        Start by adding designs directly or recording vendor meetings!
       </p>
-      <Link href="/dashboard/meetings/new">
-        <Button>Record New Meeting</Button>
-      </Link>
+      <div className="flex gap-2 justify-center">
+        <CreateDesignDialog />
+        <Link href="/dashboard/meetings/new">
+          <Button variant="outline">Record Meeting</Button>
+        </Link>
+      </div>
     </Card>
   );
 }
@@ -71,9 +76,7 @@ function DesignCard({
         description: "The design has been removed from your library.",
       });
 
-      // Refresh global stats
       await refreshData();
-      // Refresh local designs list
       onDelete();
     } catch {
       toast({
@@ -91,7 +94,11 @@ function DesignCard({
       <div className="relative aspect-square">
         <Image
           src={design.imageUrl}
-          alt={`Design from ${design.meeting.vendorName}`}
+          alt={
+            design.meeting
+              ? `Design from ${design.meeting.vendorName}`
+              : "Design"
+          }
           fill
           className="object-cover"
           sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
@@ -100,8 +107,18 @@ function DesignCard({
       <div className="p-3">
         <div className="flex justify-between items-start mb-2">
           <div>
-            <p className="font-medium text-sm">{design.meeting.vendorName}</p>
-            <p className="text-xs text-gray-500">{design.meeting.location}</p>
+            {design.meeting ? (
+              <>
+                <p className="font-medium text-sm">
+                  {design.meeting.vendorName}
+                </p>
+                <p className="text-xs text-gray-500">
+                  {design.meeting.location}
+                </p>
+              </>
+            ) : (
+              <p className="font-medium text-sm">Personal Collection</p>
+            )}
           </div>
           <Badge variant="secondary" className="text-xs">
             ₹{(design.finalPrice / 100).toLocaleString()}
@@ -123,7 +140,7 @@ function DesignCard({
             className="flex w-full self-stretch"
             onClick={() => setShowDeleteConfirm(true)}
           >
-            <Trash2 />
+            <Trash2 className="mr-2 h-4 w-4" />
             Delete
           </Button>
         </div>
@@ -245,11 +262,14 @@ function DesignGrid() {
 export default function DesignsPage() {
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Design Library</h1>
-        <p className="text-gray-500">
-          Browse and organize your design collection
-        </p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold">Design Library</h1>
+          <p className="text-gray-500">
+            Browse and organize your design collection
+          </p>
+        </div>
+        <CreateDesignDialog />
       </div>
 
       <Suspense fallback={<LoadingSpinner />}>
