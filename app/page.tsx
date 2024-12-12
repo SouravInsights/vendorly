@@ -13,12 +13,17 @@ import {
   Phone,
   Store,
 } from "lucide-react";
+import {
+  FabricSwatch,
+  MeasuringTape,
+  DesignSketch,
+} from "./components/decorative-elements";
 
 const LandingPage = () => {
   const [activeTab, setActiveTab] = useState("designs");
 
   return (
-    <div className="min-h-screen bg-stone-50">
+    <div className="min-h-screen bg-stone-50 overflow-hidden">
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-sm border-b">
         <div className="max-w-6xl mx-auto px-4">
@@ -46,7 +51,7 @@ const LandingPage = () => {
       </nav>
 
       {/* Hero Section - Designer's Desk */}
-      <section className="pt-32 pb-16 px-4">
+      <section className="pt-32 pb-16 px-4 relative">
         <div className="max-w-4xl mx-auto">
           {/* Pinboard Style Layout */}
           <div className="relative bg-white rounded-xl p-8 shadow-sm border border-stone-200">
@@ -59,7 +64,7 @@ const LandingPage = () => {
                 Your Fashion Business Companion
               </span>
 
-              <h1 className="text-4xl md:text-5xl font-serif leading-tight">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif leading-tight">
                 Stop juggling photos & prices.
                 <br />
                 <span className="text-rose-600">
@@ -80,13 +85,18 @@ const LandingPage = () => {
             </div>
           </div>
         </div>
+        {/* Add decorative elements */}
+        <FabricSwatch color="#FFD1DC" />
+        <FabricSwatch color="#ADD8E6" />
+        <MeasuringTape />
+        <DesignSketch />
       </section>
 
       {/* Workspace Sections */}
-      <section className="py-16 px-4">
+      <section className="py-16 px-4 relative">
         <div className="max-w-6xl mx-auto">
           {/* Workspace Tabs */}
-          <div className="flex overflow-x-auto gap-4 mb-8 pb-2">
+          <div className="flex overflow-x-auto gap-4 mb-8 pb-2 scrollbar-hide">
             {[
               { id: "designs", label: "Design Table", icon: Camera },
               { id: "vendors", label: "Vendor Files", icon: Store },
@@ -319,10 +329,15 @@ const LandingPage = () => {
             </div>
           </div>
         </div>
+        {/* Add decorative elements */}
+        <FabricSwatch color="#E6E6FA" />
+        <FabricSwatch color="#98FB98" />
+        <MeasuringTape />
+        <DesignSketch />
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 px-4">
+      <section className="py-16 px-4 relative">
         <div className="max-w-3xl mx-auto">
           <div className="bg-white p-8 rounded-xl shadow-sm border border-stone-200">
             <div className="space-y-6 text-center">
@@ -347,6 +362,9 @@ const LandingPage = () => {
             </div>
           </div>
         </div>
+        {/* Add decorative elements */}
+        <FabricSwatch color="#FFA07A" />
+        <MeasuringTape />
       </section>
 
       {/* Footer */}
