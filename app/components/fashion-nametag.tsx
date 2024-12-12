@@ -26,7 +26,7 @@ export const FashionNametag: React.FC = () => {
     >
       <div
         className={`
-        bg-white p-3 rounded-lg shadow-lg border-2 border-rose-300
+        bg-white p-1 rounded-lg shadow-lg border-2 border-rose-300
         transform transition-all duration-500 ease-in-out
         hover:shadow-xl hover:border-rose-400
         ${isSpinning ? "scale-105" : "hover:scale-102"}
@@ -40,12 +40,12 @@ export const FashionNametag: React.FC = () => {
         >
           <div
             className={`
-            w-10 h-10 bg-rose-100 rounded-lg flex items-center justify-center
+            w-8 h-8 bg-rose-100 rounded-lg flex items-center justify-center
             transition-all duration-500 ease-in-out
             ${isSpinning ? "rotate-180" : "group-hover:rotate-45"}
           `}
           >
-            <Icon className="w-6 h-6 text-rose-500" />
+            <Icon className="w-4 h-4 text-rose-500" />
           </div>
           <div className="flex flex-col">
             <span className="text-xs font-medium text-stone-500">
