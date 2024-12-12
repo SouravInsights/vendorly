@@ -1,4 +1,3 @@
-// app/api/designs/share/route.ts
 import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { sharedDesigns, designs } from "@/db/schema";

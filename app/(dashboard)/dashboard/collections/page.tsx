@@ -47,7 +47,10 @@ export default function CollectionsPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {collections.map((collection) => (
-          <Link key={collection.id} href={`/collections/${collection.id}`}>
+          <Link
+            key={collection.id}
+            href={`/dashboard/collections/${collection.id}`}
+          >
             <Card className="p-4 hover:shadow-lg transition-shadow cursor-pointer group">
               <div className="flex items-start gap-3">
                 <div className="text-2xl group-hover:scale-110 transition-transform">

@@ -32,12 +32,10 @@ interface PriceTagProps {
   label?: string;
 }
 
-// Update the DesignCard props
 interface DesignCardProps {
   design: DesignFromAPI;
 }
 
-// Update the MeetingCard props
 interface MeetingCardProps {
   meeting: MeetingFromAPI;
   onDelete: () => void;

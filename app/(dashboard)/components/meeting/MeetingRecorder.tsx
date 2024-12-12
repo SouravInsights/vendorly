@@ -83,7 +83,7 @@ export function MeetingRecorder() {
         });
 
         await refreshData();
-        router.push("/meetings");
+        router.push("/dashboard/meetings");
         router.refresh();
       } else {
         throw new Error(data.error || "Failed to save meeting");

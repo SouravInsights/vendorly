@@ -40,7 +40,7 @@ function EmptyState() {
       <p className="text-gray-500 mb-4">
         Your design library is empty. Start by recording vendor meetings!
       </p>
-      <Link href="/meetings/new">
+      <Link href="/dashboard/meetings/new">
         <Button>Record New Meeting</Button>
       </Link>
     </Card>

@@ -72,7 +72,7 @@ export default function CollectionPage({ params }: { params: { id: string } }) {
     });
 
     if (response.ok) {
-      router.push("/collections");
+      router.push("/dashboard/collections");
       toast({
         title: "Collection deleted",
         description: "Collection has been deleted",
@@ -89,7 +89,7 @@ export default function CollectionPage({ params }: { params: { id: string } }) {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => router.push("/collections")}
+            onClick={() => router.push("/dashboard/collections")}
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>

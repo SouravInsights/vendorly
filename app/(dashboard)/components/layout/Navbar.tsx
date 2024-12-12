@@ -21,32 +21,32 @@ import { useClerk } from "@clerk/nextjs";
 const navItems = [
   {
     name: "Home",
-    href: "/dashboard", // Updated path
+    href: "/dashboard",
     icon: Home,
   },
   {
     name: "New Meeting",
-    href: "/dashboard/meetings/new", // Updated path
+    href: "/dashboard/meetings/new",
     icon: Plus,
   },
   {
     name: "Recent",
-    href: "/dashboard/meetings", // Updated path
+    href: "/dashboard/meetings",
     icon: Clock,
   },
   {
     name: "Designs",
-    href: "/dashboard/designs", // Updated path
+    href: "/dashboard/designs",
     icon: Book,
   },
   {
     name: "Journey",
-    href: "/dashboard/journey", // Updated path
+    href: "/dashboard/journey",
     icon: Trophy,
   },
   {
     name: "Collections",
-    href: "/dashboard/collections", // Updated path
+    href: "/dashboard/collections",
     icon: SquareLibrary,
   },
 ];
@@ -54,27 +54,27 @@ const navItems = [
 const navItemsMobile = [
   {
     mobileName: "Home",
-    href: "/dashboard", // Updated path
+    href: "/dashboard",
     icon: Home,
   },
   {
     mobileName: "New",
-    href: "/dashboard/meetings/new", // Updated path
+    href: "/dashboard/meetings/new",
     icon: Plus,
   },
   {
     mobileName: "Recent",
-    href: "/dashboard/meetings", // Updated path
+    href: "/dashboard/meetings",
     icon: Clock,
   },
   {
     mobileName: "Designs",
-    href: "/dashboard/designs", // Updated path
+    href: "/dashboard/designs",
     icon: Book,
   },
   {
     mobileName: "Collections",
-    href: "/dashboard/collections", // Updated path
+    href: "/dashboard/collections",
     icon: SquareLibrary,
   },
 ];
