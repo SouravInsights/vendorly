@@ -1,49 +1,41 @@
+/* eslint-disable react/no-unescaped-entities */
+import React from "react";
 import { SignInButton, SignedIn, SignedOut } from "@clerk/nextjs";
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, Layout, Shield, Users } from "lucide-react";
+import {
+  Camera,
+  Package,
+  IndianRupee,
+  Calendar,
+  ArrowRight,
+  Phone,
+  Search,
+  CheckCircle2,
+} from "lucide-react";
 
-export default function LandingPage() {
-  const features = [
-    {
-      icon: <Layout className="h-6 w-6" />,
-      title: "Intuitive Design Management",
-      description:
-        "Organize and manage your design collections effortlessly with our user-friendly interface.",
-    },
-    {
-      icon: <Users className="h-6 w-6" />,
-      title: "Client Collaboration",
-      description:
-        "Share designs securely with clients and collect feedback in one centralized place.",
-    },
-    {
-      icon: <Shield className="h-6 w-6" />,
-      title: "Secure Sharing",
-      description:
-        "Control who sees your designs with secure, customizable sharing options.",
-    },
-  ];
-
+const LandingPage = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50">
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md z-50 border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4">
           <div className="flex justify-between items-center h-16">
-            <h1 className="text-2xl font-bold text-gray-900">Venodrly</h1>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+              Vendorly
+            </h1>
             <div className="flex items-center gap-4">
               <SignedIn>
                 <Link
                   href="/dashboard"
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-900 text-white hover:bg-gray-800 transition-colors"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-pink-500 to-purple-500 text-white hover:from-pink-600 hover:to-purple-600 transition-all"
                 >
-                  Go to Dashboard
+                  Open Dashboard
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </SignedIn>
               <SignedOut>
                 <SignInButton mode="modal">
-                  <button className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-900 text-white hover:bg-gray-800 transition-colors">
+                  <button className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-pink-500 to-purple-500 text-white hover:from-pink-600 hover:to-purple-600 transition-all">
                     Get Started
                     <ArrowRight className="h-4 w-4" />
                   </button>
@@ -55,21 +47,23 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-32 pb-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto text-center">
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
-            Manage Your Design Collection
-            <br className="hidden sm:block" />
-            <span className="text-blue-600"> With Confidence</span>
+      <section className="pt-32 pb-16 px-4">
+        <div className="max-w-4xl mx-auto text-center">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+            Your Fashion Business Journey,{" "}
+            <span className="bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+              Simplified
+            </span>
           </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            The all-in-one platform for managing your design portfolio,
-            collaborating with clients, and tracking your creative journey.
+          <p className="text-xl text-gray-600 mb-8">
+            From vendor meetings to design collections - organize everything in
+            one place. Because running a fashion business shouldn't feel like
+            running a marathon.
           </p>
           <SignedOut>
             <SignInButton mode="modal">
-              <button className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors text-lg">
-                Start Free
+              <button className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-gradient-to-r from-pink-500 to-purple-500 text-white hover:from-pink-600 hover:to-purple-600 transition-all text-lg">
+                Start Your Journey
                 <ArrowRight className="h-5 w-5" />
               </button>
             </SignInButton>
@@ -77,56 +71,169 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
-              <div
-                key={index}
-                className="p-6 rounded-xl bg-white shadow-sm border hover:shadow-md transition-shadow"
-              >
-                <div className="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center mb-4">
-                  {feature.icon}
+      {/* "A Day in the Life" Section */}
+      <section className="py-16 px-4 bg-white">
+        <div className="max-w-5xl mx-auto">
+          <h2 className="text-3xl font-bold text-center mb-12">
+            Because Your Day Shouldn't Look Like This...
+          </h2>
+          <div className="grid md:grid-cols-2 gap-8">
+            <div className="space-y-6">
+              <div className="p-4 bg-red-50 rounded-lg border border-red-100">
+                <div className="flex items-start gap-3">
+                  <Camera className="w-6 h-6 text-red-500 mt-1" />
+                  <div>
+                    <h3 className="font-medium mb-1">Lost in Photos</h3>
+                    <p className="text-gray-600">
+                      "Wait, which photo was from which vendor? And what was the
+                      price for this design? 🤔"
+                    </p>
+                  </div>
                 </div>
-                <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-                <p className="text-gray-600">{feature.description}</p>
               </div>
-            ))}
+
+              <div className="p-4 bg-red-50 rounded-lg border border-red-100">
+                <div className="flex items-start gap-3">
+                  <Phone className="w-6 h-6 text-red-500 mt-1" />
+                  <div>
+                    <h3 className="font-medium mb-1">Contact Chaos</h3>
+                    <p className="text-gray-600">
+                      "I know I saved that vendor's number somewhere... was it
+                      WhatsApp or Notes? 📱"
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 bg-red-50 rounded-lg border border-red-100">
+                <div className="flex items-start gap-3">
+                  <IndianRupee className="w-6 h-6 text-red-500 mt-1" />
+                  <div>
+                    <h3 className="font-medium mb-1">Price Puzzle</h3>
+                    <p className="text-gray-600">
+                      "This design looks good, but what was the final negotiated
+                      price? 💰"
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              <div className="p-4 bg-green-50 rounded-lg border border-green-100">
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="w-6 h-6 text-green-500 mt-1" />
+                  <div>
+                    <h3 className="font-medium mb-1">One-Tap Organization</h3>
+                    <p className="text-gray-600">
+                      Capture designs, prices, and vendor details - all
+                      connected, all in one place
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 bg-green-50 rounded-lg border border-green-100">
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="w-6 h-6 text-green-500 mt-1" />
+                  <div>
+                    <h3 className="font-medium mb-1">Smart Collections</h3>
+                    <p className="text-gray-600">
+                      Group designs by category, price range, or vendor - find
+                      what you need in seconds
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 bg-green-50 rounded-lg border border-green-100">
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="w-6 h-6 text-green-500 mt-1" />
+                  <div>
+                    <h3 className="font-medium mb-1">Business Insights</h3>
+                    <p className="text-gray-600">
+                      Track margins, compare prices, and make informed decisions
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Benefits Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
-        <div className="max-w-7xl mx-auto">
+      {/* Features Section */}
+      <section className="py-16 px-4">
+        <div className="max-w-5xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-12">
-            Why Choose Us
+            Everything You Need, Nothing You Don't
           </h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              "Easy design organization",
-              "Secure file sharing",
-              "Client feedback tools",
-              "Meeting management",
-              "Analytics dashboard",
-              "Customizable collections",
-            ].map((benefit, index) => (
-              <div key={index} className="flex items-center gap-3">
-                <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0" />
-                <span>{benefit}</span>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-pink-500 to-purple-500 flex items-center justify-center mb-4">
+                <Calendar className="h-6 w-6 text-white" />
               </div>
-            ))}
+              <h3 className="text-xl font-semibold mb-2">Meeting Magic</h3>
+              <p className="text-gray-600">
+                Record vendor meetings with photos, prices, and notes - all
+                organized chronologically
+              </p>
+            </div>
+
+            <div className="p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-pink-500 to-purple-500 flex items-center justify-center mb-4">
+                <Package className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Design Library</h3>
+              <p className="text-gray-600">
+                Your personal fashion catalog - categorized, priced, and always
+                at your fingertips
+              </p>
+            </div>
+
+            <div className="p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-pink-500 to-purple-500 flex items-center justify-center mb-4">
+                <Search className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Smart Search</h3>
+              <p className="text-gray-600">
+                Find any design, vendor, or price point in seconds - no more
+                endless scrolling
+              </p>
+            </div>
           </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-16 px-4 bg-white">
+        <div className="max-w-3xl mx-auto text-center">
+          <h2 className="text-3xl font-bold mb-6">
+            Ready to Transform Your Fashion Business?
+          </h2>
+          <p className="text-xl text-gray-600 mb-8">
+            Join other fashion entrepreneurs who are growing their businesses
+            with less stress and better organization.
+          </p>
+          <SignedOut>
+            <SignInButton mode="modal">
+              <button className="inline-flex items-center gap-2 px-8 py-4 rounded-lg bg-gradient-to-r from-pink-500 to-purple-500 text-white hover:from-pink-600 hover:to-purple-600 transition-all text-lg">
+                Start Free Today
+                <ArrowRight className="h-5 w-5" />
+              </button>
+            </SignInButton>
+          </SignedOut>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-50 border-t py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto text-center text-gray-600">
-          <p>© {new Date().getFullYear()} DesignVault. All rights reserved.</p>
+      <footer className="bg-white border-t py-12 px-4">
+        <div className="max-w-5xl mx-auto text-center text-gray-600">
+          <p>© {new Date().getFullYear()} Vendorly. All rights reserved.</p>
         </div>
       </footer>
     </div>
   );
-}
+};
+
+export default LandingPage;
