@@ -9,7 +9,7 @@ export const FabricSwatch = ({ color }: { color: string }) => {
 
   return (
     <div
-      className="absolute w-16 h-16 rounded-full opacity-20 mix-blend-multiply"
+      className="absolute w-16 h-16 rounded-full opacity-20 mix-blend-multiply transition-transform duration-300 ease-in-out hover:scale-110"
       style={{
         backgroundColor: color,
         transform: `rotate(${rotation}deg)`,
@@ -26,7 +26,7 @@ export const MeasuringTape = () => {
 
   return (
     <div
-      className="absolute w-32 h-4 bg-yellow-400 opacity-20"
+      className="absolute w-32 h-4 bg-yellow-400 opacity-20 transition-all duration-300 ease-in-out hover:opacity-40 hover:shadow-md"
       style={{
         transform: `rotate(${rotation}deg)`,
         top: position.top,
@@ -49,7 +49,7 @@ export const DesignSketch = () => {
 
   return (
     <div
-      className="absolute w-24 h-32 bg-white opacity-20 shadow-sm"
+      className="absolute w-24 h-32 bg-white opacity-20 shadow-sm transition-all duration-300 ease-in-out hover:opacity-40 hover:shadow-md"
       style={{
         transform: `rotate(${rotation}deg)`,
         top: position.top,

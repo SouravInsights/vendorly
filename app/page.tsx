@@ -18,6 +18,8 @@ import {
   MeasuringTape,
   DesignSketch,
 } from "./components/decorative-elements";
+import { CreativeFooter } from "./components/creative-footer";
+import { FashionNametag } from "./components/fashion-nametag";
 
 const LandingPage = () => {
   const [activeTab, setActiveTab] = useState("designs");
@@ -98,9 +100,9 @@ const LandingPage = () => {
           {/* Workspace Tabs */}
           <div className="flex overflow-x-auto gap-4 mb-8 pb-2 scrollbar-hide">
             {[
-              { id: "designs", label: "Design Table", icon: Camera },
-              { id: "vendors", label: "Vendor Files", icon: Store },
-              { id: "pricing", label: "Price Tags", icon: IndianRupee },
+              { id: "designs", label: "Manage Designs", icon: Camera },
+              { id: "vendors", label: "Organize Vendors", icon: Store },
+              { id: "pricing", label: "Track Pricing", icon: IndianRupee },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -368,11 +370,9 @@ const LandingPage = () => {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 px-4 border-t">
-        <div className="max-w-5xl mx-auto text-center text-stone-600">
-          <p>© {new Date().getFullYear()} Vendorly</p>
-        </div>
-      </footer>
+      <CreativeFooter />
+
+      <FashionNametag />
     </div>
   );
 };
