@@ -9,16 +9,38 @@ import {
   designsToCollections,
   sharedDesigns,
 } from "@/db/schema";
-import { eq, inArray } from "drizzle-orm";
+import { eq, inArray, and } from "drizzle-orm";
+import { auth } from "@clerk/nextjs/server";
 
 export async function DELETE(
   _request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
+    const { userId } = await auth();
+
+    if (!userId) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     const id = parseInt(params.id);
 
-    // First, find all designs for this meeting
+    // Verify meeting ownership
+    const meeting = await db.query.meetings.findFirst({
+      where: and(eq(meetings.id, id), eq(meetings.userId, userId)),
+    });
+
+    if (!meeting) {
+      return NextResponse.json(
+        { success: false, error: "Meeting not found or unauthorized" },
+        { status: 404 }
+      );
+    }
+
+    // Find all designs for this meeting
     const relatedDesigns = await db
       .select({ id: designs.id })
       .from(designs)
@@ -27,35 +49,24 @@ export async function DELETE(
     const designIds = relatedDesigns.map((d) => d.id);
 
     if (designIds.length > 0) {
-      // First delete shared designs
+      // Delete shared designs
       await db
         .delete(sharedDesigns)
         .where(inArray(sharedDesigns.designId, designIds));
 
-      // Then delete collection relationships
+      // Delete collection relationships
       await db
         .delete(designsToCollections)
         .where(inArray(designsToCollections.designId, designIds));
     }
 
-    // Delete all related designs
+    // Delete designs
     await db.delete(designs).where(eq(designs.meetingId, id));
 
-    // Finally delete the meeting
-    const [deletedMeeting] = await db
+    // Delete meeting
+    await db
       .delete(meetings)
-      .where(eq(meetings.id, id))
-      .returning();
-
-    if (!deletedMeeting) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: `Meeting with id ${id} not found`,
-        },
-        { status: 404 }
-      );
-    }
+      .where(and(eq(meetings.id, id), eq(meetings.userId, userId)));
 
     return NextResponse.json({
       success: true,

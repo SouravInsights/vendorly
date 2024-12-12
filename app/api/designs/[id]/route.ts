@@ -1,41 +1,56 @@
+// app/api/designs/[id]/route.ts
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { designs, designsToCollections, sharedDesigns } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
+import { auth } from "@clerk/nextjs/server";
 
 export async function DELETE(
   _request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
+    const { userId } = await auth();
+
+    if (!userId) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     const id = parseInt(params.id);
 
-    // First delete shared designs
-    await db.delete(sharedDesigns).where(eq(sharedDesigns.designId, id));
+    // Verify design ownership
+    const design = await db.query.designs.findFirst({
+      where: and(eq(designs.id, id), eq(designs.userId, userId)),
+    });
 
-    // Then delete from designs_to_collections
-    await db
-      .delete(designsToCollections)
-      .where(eq(designsToCollections.designId, id));
-
-    // Finally delete the design
-    const [deletedDesign] = await db
-      .delete(designs)
-      .where(eq(designs.id, id))
-      .returning();
-
-    if (!deletedDesign) {
+    if (!design) {
       return NextResponse.json(
         {
           success: false,
-          error: `Design with id ${id} not found`,
+          error: "Design not found or unauthorized",
         },
         { status: 404 }
       );
     }
+
+    // Delete shared designs
+    await db.delete(sharedDesigns).where(eq(sharedDesigns.designId, id));
+
+    // Delete from collections
+    await db
+      .delete(designsToCollections)
+      .where(eq(designsToCollections.designId, id));
+
+    // Delete the design
+    await db
+      .delete(designs)
+      .where(and(eq(designs.id, id), eq(designs.userId, userId)));
 
     return NextResponse.json({
       success: true,

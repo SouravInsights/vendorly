@@ -1,11 +1,36 @@
+// app/api/designs/share/route.ts
 import { NextResponse } from "next/server";
 import { db } from "@/db";
-import { sharedDesigns } from "@/db/schema";
+import { sharedDesigns, designs } from "@/db/schema";
 import { nanoid } from "nanoid";
+import { auth } from "@clerk/nextjs/server";
+import { eq, and } from "drizzle-orm";
 
 export async function POST(request: Request) {
   try {
-    const { designId, showPrice, showVendor, notes } = await request.json();
+    const { userId } = await auth();
+
+    if (!userId) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    const { designId, showPrice, showVendor, notes, sharedBy } =
+      await request.json();
+
+    // Verify design ownership
+    const design = await db.query.designs.findFirst({
+      where: and(eq(designs.id, designId), eq(designs.userId, userId)),
+    });
+
+    if (!design) {
+      return NextResponse.json(
+        { success: false, error: "Design not found or unauthorized" },
+        { status: 404 }
+      );
+    }
 
     const shareCode = nanoid(10);
 
@@ -13,7 +38,8 @@ export async function POST(request: Request) {
       .insert(sharedDesigns)
       .values({
         designId,
-        sharedBy: "farhana", // Hardcoded for now
+        userId,
+        sharedBy: sharedBy || "Anonymous",
         shareCode,
         showPrice,
         showVendor,
@@ -25,7 +51,8 @@ export async function POST(request: Request) {
       success: true,
       shareCode: shared.shareCode,
     });
-  } catch {
+  } catch (error) {
+    console.error("Error sharing design:", error);
     return NextResponse.json(
       {
         success: false,

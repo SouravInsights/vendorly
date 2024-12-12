@@ -5,50 +5,15 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1732616705411,
-      "tag": "0000_goofy_luminals",
+      "when": 1734019278837,
+      "tag": "0000_kind_landau",
       "breakpoints": true
     },
     {
       "idx": 1,
       "version": "7",
-      "when": 1732639959277,
-      "tag": "0001_salty_paladin",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1732709160858,
-      "tag": "0002_many_firedrake",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1732715255797,
-      "tag": "0003_absurd_tyger_tiger",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1732738590399,
-      "tag": "0004_old_silvermane",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1732748220123,
-      "tag": "0005_elite_krista_starr",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1734002366302,
-      "tag": "0006_robust_jubilee",
+      "when": 1734023400113,
+      "tag": "0001_clever_gorilla_man",
       "breakpoints": true
     }
   ]

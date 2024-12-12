@@ -6,17 +6,29 @@ import {
   designs,
   meetings,
 } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
+import { auth } from "@clerk/nextjs/server";
 
 export async function GET(
   _request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
-    const [collection] = await db
-      .select()
-      .from(collections)
-      .where(eq(collections.id, parseInt(params.id)));
+    const { userId } = await auth();
+
+    if (!userId) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    const collection = await db.query.collections.findFirst({
+      where: and(
+        eq(collections.id, parseInt(params.id)),
+        eq(collections.userId, userId)
+      ),
+    });
 
     if (!collection) {
       return NextResponse.json(
@@ -29,27 +41,37 @@ export async function GET(
     const designsInCollection = await db
       .select({
         design: designs,
-        meeting: meetings,
+        meetingId: designs.meetingId,
+        meetingVendorName: meetings.vendorName,
+        meetingLocation: meetings.location,
       })
       .from(designsToCollections)
       .where(eq(designsToCollections.collectionId, collection.id))
       .innerJoin(designs, eq(designsToCollections.designId, designs.id))
-      .innerJoin(meetings, eq(designs.meetingId, meetings.id));
+      .leftJoin(meetings, eq(designs.meetingId, meetings.id));
+
+    const transformedDesigns = designsInCollection.map(
+      ({ design, meetingId, meetingVendorName, meetingLocation }) => ({
+        ...design,
+        meeting: meetingId
+          ? {
+              id: meetingId,
+              vendorName: meetingVendorName,
+              location: meetingLocation,
+            }
+          : null,
+      })
+    );
 
     return NextResponse.json({
       success: true,
       data: {
         ...collection,
-        designs: designsInCollection.map(({ design, meeting }) => ({
-          ...design,
-          meeting: {
-            vendorName: meeting.vendorName,
-            location: meeting.location,
-          },
-        })),
+        designs: transformedDesigns,
       },
     });
-  } catch {
+  } catch (error) {
+    console.error("Error fetching collection:", error);
     return NextResponse.json(
       { success: false, error: "Failed to fetch collection" },
       { status: 500 }
@@ -62,19 +84,51 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    // First delete all design associations
+    const { userId } = await auth();
+
+    if (!userId) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    // Verify ownership
+    const collection = await db.query.collections.findFirst({
+      where: and(
+        eq(collections.id, parseInt(params.id)),
+        eq(collections.userId, userId)
+      ),
+    });
+
+    if (!collection) {
+      return NextResponse.json(
+        { success: false, error: "Collection not found or unauthorized" },
+        { status: 404 }
+      );
+    }
+
+    // Delete all design associations
     await db
       .delete(designsToCollections)
       .where(eq(designsToCollections.collectionId, parseInt(params.id)));
 
-    // Then delete the collection
-    await db.delete(collections).where(eq(collections.id, parseInt(params.id)));
+    // Delete the collection
+    await db
+      .delete(collections)
+      .where(
+        and(
+          eq(collections.id, parseInt(params.id)),
+          eq(collections.userId, userId)
+        )
+      );
 
     return NextResponse.json({
       success: true,
       message: "Collection deleted",
     });
-  } catch {
+  } catch (error) {
+    console.error("Error deleting collection:", error);
     return NextResponse.json(
       { success: false, error: "Failed to delete collection" },
       { status: 500 }

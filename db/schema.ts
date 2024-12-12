@@ -13,18 +13,9 @@ import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 import { DESIGN_CATEGORIES } from "@/lib/constants";
 
-export const users = pgTable("users", {
-  id: text("id").primaryKey(), // Clerk user ID
-  email: text("email").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
-
 export const meetings = pgTable("meetings", {
   id: serial("id").primaryKey(),
-  userId: text("user_id")
-    .references(() => users.id)
-    .notNull(),
+  userId: text("user_id").notNull(), // Just a text field, no foreign key
   vendorName: text("vendor_name").notNull(),
   location: text("location").notNull(),
   phoneNumber: text("phone_number"),
@@ -36,12 +27,9 @@ export const meetings = pgTable("meetings", {
 
 export const designs = pgTable("designs", {
   id: serial("id").primaryKey(),
-  userId: text("user_id")
-    .references(() => users.id)
-    .notNull(),
+  userId: text("user_id").notNull(),
   meetingId: integer("meeting_id").references(() => meetings.id),
   imageUrl: text("image_url").notNull(),
-  // New price fields
   basePrice: integer("base_price").notNull().default(0),
   finalPrice: integer("final_price").notNull().default(0),
   similarDesignsMinPrice: integer("similar_designs_min_price"),
@@ -52,7 +40,7 @@ export const designs = pgTable("designs", {
   sizes: jsonb("sizes").$type<string[]>().default(["S", "M", "L", "XL"]),
   isShortlisted: boolean("is_shortlisted").default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-  source: text("source").default("direct").notNull(),
+  source: text("source").default("direct").notNull(), // 'direct' or 'meeting'
 });
 
 export const sharedDesigns = pgTable("shared_designs", {
@@ -60,26 +48,22 @@ export const sharedDesigns = pgTable("shared_designs", {
   designId: integer("design_id")
     .references(() => designs.id)
     .notNull(),
-  userId: text("user_id")
-    .references(() => users.id)
-    .notNull(),
-  sharedBy: text("shared_by").notNull(), // Could be used for user system later
-  shareCode: text("share_code").notNull().unique(), // Unique code for sharing
+  userId: text("user_id").notNull(),
+  sharedBy: text("shared_by").notNull(),
+  shareCode: text("share_code").notNull().unique(),
   showPrice: boolean("show_price").default(true),
   showVendor: boolean("show_vendor").default(false),
-  expiresAt: timestamp("expires_at"), // Optional expiry
+  expiresAt: timestamp("expires_at"),
   notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 export const collections = pgTable("collections", {
   id: serial("id").primaryKey(),
-  userId: text("user_id")
-    .references(() => users.id)
-    .notNull(),
+  userId: text("user_id").notNull(),
   name: text("name").notNull(),
   description: text("description"),
-  emoji: text("emoji"), // For visual distinction
+  emoji: text("emoji"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -95,46 +79,18 @@ export const designsToCollections = pgTable("designs_to_collections", {
 });
 
 // Relations
-export const usersRelations = relations(users, ({ many }) => ({
-  meetings: many(meetings),
-  designs: many(designs),
-  collections: many(collections),
-  sharedDesigns: many(sharedDesigns),
-}));
-
-export const meetingsRelations = relations(meetings, ({ one, many }) => ({
-  user: one(users, {
-    fields: [meetings.userId],
-    references: [users.id],
-  }),
+export const meetingsRelations = relations(meetings, ({ many }) => ({
   designs: many(designs),
 }));
 
-export const designsRelations = relations(designs, ({ one, many }) => ({
-  user: one(users, {
-    fields: [designs.userId],
-    references: [users.id],
-  }),
+export const designsRelations = relations(designs, ({ one }) => ({
   meeting: one(meetings, {
     fields: [designs.meetingId],
     references: [meetings.id],
   }),
-  sharedDesigns: many(sharedDesigns),
 }));
 
-export const sharedDesignsRelations = relations(sharedDesigns, ({ one }) => ({
-  design: one(designs, {
-    fields: [sharedDesigns.designId],
-    references: [designs.id],
-  }),
-  user: one(users, {
-    fields: [sharedDesigns.userId],
-    references: [users.id],
-  }),
-}));
-
-export type User = InferSelectModel<typeof users>;
-export type NewUser = InferInsertModel<typeof users>;
+// Types and schemas
 export type Meeting = InferSelectModel<typeof meetings>;
 export type NewMeeting = InferInsertModel<typeof meetings>;
 export type Design = InferSelectModel<typeof designs>;
@@ -145,8 +101,6 @@ export type SharedDesign = InferSelectModel<typeof sharedDesigns>;
 export type NewSharedDesign = InferInsertModel<typeof sharedDesigns>;
 
 // Schemas for validation
-export const insertUserSchema = createInsertSchema(users);
-export const selectUserSchema = createSelectSchema(users);
 export const insertMeetingSchema = createInsertSchema(meetings);
 export const selectMeetingSchema = createSelectSchema(meetings);
 export const insertDesignSchema = createInsertSchema(designs);

@@ -1,36 +1,57 @@
+// app/api/stats/route.ts
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { meetings, designs } from "@/db/schema";
-import { count, sql } from "drizzle-orm";
+import { count, sql, eq } from "drizzle-orm";
+import { auth } from "@clerk/nextjs/server";
 
 export async function GET() {
   try {
-    // Get total meetings count
-    const [meetingsCount] = await db.select({ value: count() }).from(meetings);
+    const { userId } = await auth();
 
-    // Get total designs count
-    const [designsCount] = await db.select({ value: count() }).from(designs);
+    if (!userId) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
 
-    // Get unique locations count
+    // Get total meetings count for user
+    const [meetingsCount] = await db
+      .select({ value: count() })
+      .from(meetings)
+      .where(eq(meetings.userId, userId));
+
+    // Get total designs count for user
+    const [designsCount] = await db
+      .select({ value: count() })
+      .from(designs)
+      .where(eq(designs.userId, userId));
+
+    // Get unique locations count for user
     const uniqueLocations = await db
       .select({ location: meetings.location })
       .from(meetings)
+      .where(eq(meetings.userId, userId))
       .groupBy(meetings.location);
 
-    // Get unique vendors count
+    // Get unique vendors count for user
     const uniqueVendors = await db
       .select({ vendorName: meetings.vendorName })
       .from(meetings)
+      .where(eq(meetings.userId, userId))
       .groupBy(meetings.vendorName);
 
-    // Get shortlisted designs count
+    // Get shortlisted designs count for user
     const [shortlistedCount] = await db
       .select({ value: count() })
       .from(designs)
-      .where(sql`${designs.isShortlisted} = true`);
+      .where(
+        sql`${designs.isShortlisted} = true AND ${designs.userId} = ${userId}`
+      );
 
     // Create achievement messages
     const recentAchievements = [];
@@ -52,14 +73,6 @@ export async function GET() {
         date: "🌟",
       });
     }
-
-    // Log the counts for debugging
-    console.log("Stats:", {
-      totalMeetings: meetingsCount.value,
-      totalDesigns: designsCount.value,
-      uniqueLocations: uniqueLocations.length,
-      uniqueVendors: uniqueVendors.length,
-    });
 
     return NextResponse.json({
       success: true,
