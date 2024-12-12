@@ -3,6 +3,7 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 // Define public routes
 const isPublicRoute = createRouteMatcher([
   "/",
+  "/landing-pages(/.*)?",
   "/api/designs/share", // Keep share functionality public
   "/shared/:path*", // Public sharing routes
   "/api/debug", // You might want to protect this in production

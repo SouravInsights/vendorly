@@ -14,7 +14,7 @@ import {
   Store,
 } from "lucide-react";
 
-const LandingPage = () => {
+const WorkspacePage = () => {
   const [activeTab, setActiveTab] = useState("designs");
 
   return (
@@ -359,4 +359,4 @@ const LandingPage = () => {
   );
 };
 
-export default LandingPage;
+export default WorkspacePage;
