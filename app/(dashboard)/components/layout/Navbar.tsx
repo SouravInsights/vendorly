@@ -16,7 +16,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useClerk } from "@clerk/nextjs";
+import { useClerk, useUser } from "@clerk/nextjs";
 
 const navItems = [
   {
@@ -83,6 +83,13 @@ export function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
   const { signOut } = useClerk();
+  const { user } = useUser();
+
+  // Get only the very first name by splitting at first space
+  const firstName =
+    user?.firstName?.split(" ")[0] || // split firstName at first space
+    user?.fullName?.split(" ")[0] || // if no firstName, split fullName at first space
+    "User";
 
   const handleSignOut = () => {
     signOut();
@@ -108,7 +115,7 @@ export function Navbar() {
               Vendorly
             </h1>
             <p className="text-sm text-gray-500 mt-1">
-              Farhana&apos;s Fashion Hub
+              {firstName}&apos;s Fashion Hub
             </p>
           </motion.div>
 
