@@ -1,11 +1,17 @@
-import {
-  getRandomRotation,
-  getRandomPosition,
-} from "../utils/decorative-elements";
+import { getRandomRotation } from "../utils/decorative-elements";
 
-export const FabricSwatch = ({ color }: { color: string }) => {
+type Position = {
+  top: string;
+  left: string;
+};
+
+type FabricSwatchProps = {
+  color: string;
+  position: Position;
+};
+
+export const FabricSwatch = ({ color, position }: FabricSwatchProps) => {
   const rotation = getRandomRotation();
-  const position = getRandomPosition();
 
   return (
     <div
@@ -20,9 +26,8 @@ export const FabricSwatch = ({ color }: { color: string }) => {
   );
 };
 
-export const MeasuringTape = () => {
+export const MeasuringTape = ({ position }: { position: Position }) => {
   const rotation = getRandomRotation();
-  const position = getRandomPosition();
 
   return (
     <div
@@ -43,9 +48,8 @@ export const MeasuringTape = () => {
   );
 };
 
-export const DesignSketch = () => {
+export const DesignSketch = ({ position }: { position: Position }) => {
   const rotation = getRandomRotation();
-  const position = getRandomPosition();
 
   return (
     <div
