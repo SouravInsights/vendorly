@@ -155,7 +155,7 @@ const WorkspacePage = () => {
   return (
     <div className="min-h-screen bg-stone-50">
       {/* 0cred verification */}
-      <div className="656af385-a223-405d-bc57-c70878a71199"></div>
+      <div className="ea0b9ed4-dc5b-4a44-87e7-32e6a428462a"></div>
 
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-sm border-b">
